@@ -92,21 +92,14 @@ WSGI_APPLICATION = 'api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DB_USER = os.environ.get('DB_USER', 'postgres')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', '1234Univent##')
-DB_HOST = os.environ.get('DB_HOST', 'aws-0-ap-southeast-1.pooler.supabase.com')
-DB_PORT = os.environ.get('DB_PORT', '6543')
-DB_NAME = os.environ.get('DB_NAME', 'postgres')
-DB_PROJECT_REF = os.environ.get('DB_PROJECT_REF', 'ecfrowbxdndascmozjka')
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': DB_NAME,
-        'USER': f"{DB_PROJECT_REF}_{DB_USER}",  # Add project reference to user
-        'PASSWORD': DB_PASSWORD,
-        'HOST': DB_HOST,
-        'PORT': DB_PORT,
+        'NAME': 'postgres',
+        'USER': 'postgres.ecfrowbxdndascmozjka',
+        'PASSWORD': '1234Univent##',
+        'HOST': 'aws-0-ap-southeast-1.pooler.supabase.com',
+        'PORT': '6543',
     }
 }
 
