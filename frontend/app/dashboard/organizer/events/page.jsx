@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FaCalendar, FaMapMarkerAlt, FaUsers, FaEdit, FaTrash } from 'react-icons/fa';
+import { API_ENDPOINTS } from '@/lib/config';
 
 export default function EventsPage() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function EventsPage() {
           return;
         }
 
-        const response = await fetch('http://127.0.0.1:5656/api/events/organizer/events/', {
+        const response = await fetch(API_ENDPOINTS.ORGANIZER_EVENTS, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -52,7 +53,7 @@ export default function EventsPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:5656/api/events/delete/${eventId}/`, {
+      const response = await fetch(API_ENDPOINTS.DELETE_EVENT(eventId), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaCamera, FaTimes, FaGlobe, FaFacebook, FaCopy } from 'react-icons/fa';
 import * as Yup from 'yup';
+import { API_ENDPOINTS } from '@/lib/config';
 
 // Organization categories constant
 const ORGANIZATION_CATEGORIES = [
@@ -80,7 +81,7 @@ export default function SettingsPage() {
         }
 
         // Fetch organization profile
-        const response = await fetch('http://127.0.0.1:5656/api/accounts/organizer/profile/', {
+        const response = await fetch(API_ENDPOINTS.UPDATE_ORGANIZER_PROFILE, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -207,7 +208,7 @@ export default function SettingsPage() {
         }
       });
 
-      const response = await fetch('http://127.0.0.1:5656/api/accounts/organizer/profile/', {
+      const response = await fetch(API_ENDPOINTS.UPDATE_ORGANIZER_PROFILE, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`

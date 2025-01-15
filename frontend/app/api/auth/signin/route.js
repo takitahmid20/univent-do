@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { API_ENDPOINTS } from '@/lib/config';
 
 export async function POST(request) {
   try {
@@ -10,8 +11,8 @@ export async function POST(request) {
     // Determine if this is an admin login attempt
     const isAdminLogin = username === 'admin';
     const loginEndpoint = isAdminLogin 
-      ? 'http://127.0.0.1:5656/api/admin/login/'
-      : 'http://127.0.0.1:5656/api/accounts/login/';
+      ? API_ENDPOINTS.ADMIN_LOGIN
+      : API_ENDPOINTS.LOGIN;
 
     const response = await fetch(loginEndpoint, {
       method: 'POST',

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FaCheck, FaClock } from 'react-icons/fa';
+import { API_ENDPOINTS } from '@/lib/config';
 
 const EventParticipants = ({ eventId }) => {
   const [participants, setParticipants] = useState(null);
@@ -17,7 +18,7 @@ const EventParticipants = ({ eventId }) => {
           return;
         }
 
-        const response = await fetch(`http://127.0.0.1:5656/api/events/participants/${eventId}/`, {
+        const response = await fetch(API_ENDPOINTS.EVENT_PARTICIPANTS(eventId), {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { FaImage, FaMapMarkerAlt, FaCalendar, FaClock, FaTicketAlt, FaInfoCircle, FaUsers, FaTimes } from 'react-icons/fa';
 import * as Yup from 'yup';
 import { use } from 'react';
+import { API_ENDPOINTS } from '@/lib/config';
 
 const EVENT_CATEGORIES = [
   { value: 'tech', label: 'Technology' },
@@ -82,7 +83,7 @@ function EditEventPage({ eventId }) {
           return;
         }
 
-        const response = await fetch(`http://127.0.0.1:5656/api/events/get/${eventId}/`, {
+        const response = await fetch(API_ENDPOINTS.GET_EVENT_DETAILS(eventId), {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -198,7 +199,7 @@ function EditEventPage({ eventId }) {
       }
 
       // Send update request
-      const response = await fetch(`http://127.0.0.1:5656/api/events/update/${eventId}/`, {
+      const response = await fetch(API_ENDPOINTS.UPDATE_EVENT(eventId), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`

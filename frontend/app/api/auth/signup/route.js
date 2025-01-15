@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { API_ENDPOINTS } from '@/lib/config';
 
 export async function POST(request) {
   try {
@@ -18,7 +19,7 @@ export async function POST(request) {
     console.log('Request body being sent to backend:', requestBody);
 
     // Call your Django backend API
-    const response = await fetch('http://127.0.0.1:5656/api/accounts/signup/', {
+    const response = await fetch(API_ENDPOINTS.REGISTER, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -75,7 +75,7 @@ const SignUpPage = () => {
   const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
     try {
       setApiError('');
-      const response = await fetch('/api/auth/signup', {
+      const response = await fetch('/api/accounts/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

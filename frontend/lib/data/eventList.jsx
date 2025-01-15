@@ -1,1 +1,1 @@
-// api = http://127.0.0.1:5656/api/events/events/
+// API endpoint is defined in config.js as API_ENDPOINTS.GET_EVENTS

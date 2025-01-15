@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaCreditCard, FaMoneyBill, FaSpinner } from 'react-icons/fa';
+import { API_ENDPOINTS } from '@/lib/config';
 
 export default function PaymentPage({ params }) {
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,7 @@ export default function PaymentPage({ params }) {
           return;
         }
 
-        const response = await fetch(`http://127.0.0.1:5656/events/registration/${params.registrationId}`, {
+        const response = await fetch(API_ENDPOINTS.GET_REGISTRATION_DETAILS(params.registrationId), {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -52,7 +53,7 @@ export default function PaymentPage({ params }) {
         
         // After successful payment, update registration status
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://127.0.0.1:5656/events/registration/${params.registrationId}/confirm`, {
+        const response = await fetch(API_ENDPOINTS.CONFIRM_REGISTRATION(params.registrationId), {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

@@ -11,6 +11,7 @@ import {
   FaDownload,
   FaChair
 } from 'react-icons/fa';
+import { API_ENDPOINTS } from '@/lib/config';
 
 // QR Code Modal Component
 function QRCodeModal({ isOpen, onClose, qrCode, eventTitle }) {
@@ -81,12 +82,12 @@ export default function UserDashboard() {
         
         // Fetch both registrations and dashboard data
         const [registrationsResponse, dashboardResponse] = await Promise.all([
-          fetch('http://127.0.0.1:5656/api/events/my-registrations/', {
+          fetch(API_ENDPOINTS.USER_REGISTERED_EVENTS, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
           }),
-          fetch('http://127.0.0.1:5656/api/events/user/dashboard/', {
+          fetch(API_ENDPOINTS.USER_DASHBOARD, {
             headers: {
               'Authorization': `Bearer ${token}`
             }

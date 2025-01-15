@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaImage, FaMapMarkerAlt, FaCalendar, FaClock, FaTicketAlt, FaInfoCircle, FaUsers, FaTimes } from 'react-icons/fa';
 import * as Yup from 'yup';
+import { API_ENDPOINTS } from '@/lib/config';
 
 const validationSchema = Yup.object().shape({
   title: Yup.string()
@@ -208,7 +209,7 @@ export default function CreateEventPage() {
         const formData = new FormData();
         formData.append('file', eventData.image);
 
-        const imageResponse = await fetch('http://127.0.0.1:5656/api/events/upload-image/', {
+        const imageResponse = await fetch(API_ENDPOINTS.UPLOAD_IMAGE, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -242,7 +243,7 @@ export default function CreateEventPage() {
       };
 
       // Create event
-      const response = await fetch('http://127.0.0.1:5656/api/events/create/', {
+      const response = await fetch(API_ENDPOINTS.CREATE_EVENT, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

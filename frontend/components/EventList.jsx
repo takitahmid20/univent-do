@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import EventBox from '@/components/EventBox';
 import { FaFilter, FaSort } from 'react-icons/fa';
 import Button from '@/components/Button';
+import { API_ENDPOINTS } from '@/lib/config';
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
@@ -17,7 +18,7 @@ const EventList = () => {
       try {
         // Fetch upcoming events sorted by creation date
         const response = await fetch(
-          `http://127.0.0.1:5656/api/events/?sortBy=${sortBy}&sortOrder=desc&page=1&pageSize=8`
+          `${API_ENDPOINTS.GET_EVENTS}?sortBy=${sortBy}&sortOrder=desc&page=1&pageSize=8`
         );
 
         if (!response.ok) {

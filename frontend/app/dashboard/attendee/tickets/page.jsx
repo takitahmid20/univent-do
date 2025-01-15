@@ -13,6 +13,7 @@ import {
   FaCheckCircle,
   FaRegCircle
 } from 'react-icons/fa';
+import { API_ENDPOINTS } from '@/lib/config';
 
 // QR Code Modal Component
 function QRCodeModal({ isOpen, onClose, qrCode, eventTitle }) {
@@ -163,7 +164,7 @@ export default function TicketsPage() {
           throw new Error('No authentication token found');
         }
 
-        const response = await fetch('http://127.0.0.1:5656/api/events/my-registrations/', {
+        const response = await fetch(API_ENDPOINTS.USER_REGISTERED_EVENTS, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

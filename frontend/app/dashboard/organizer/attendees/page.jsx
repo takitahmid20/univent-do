@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FaSpinner, FaFilter, FaSort, FaSearch, FaCheckCircle, FaUndoAlt, FaUser } from 'react-icons/fa';
+import { API_ENDPOINTS } from '@/lib/config';
 
 const formatDateTime = (isoString) => {
   if (!isoString) return '-';
@@ -107,7 +108,7 @@ export default function AttendeesPage() {
       setCheckingIn(registrationId);
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`http://127.0.0.1:5656/api/events/check-in/toggle/${registrationId}/`, {
+      const response = await fetch(API_ENDPOINTS.TOGGLE_CHECK_IN(registrationId), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -168,7 +169,7 @@ export default function AttendeesPage() {
         }
 
         console.log('Fetching participants for event:', eventId);
-        const response = await fetch(`http://127.0.0.1:5656/api/events/participants/${eventId}/`, {
+        const response = await fetch(API_ENDPOINTS.EVENT_PARTICIPANTS(eventId), {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': `application/json`,

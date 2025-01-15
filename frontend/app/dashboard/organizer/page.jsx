@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_ENDPOINTS } from '@/lib/config';
 import { 
   FaCalendarAlt, 
   FaUsers,
@@ -21,7 +22,7 @@ export default function OrganizerDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5656/api/events/organizer/dashboard/', {
+        const response = await fetch(API_ENDPOINTS.ORGANIZER_DASHBOARD, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }

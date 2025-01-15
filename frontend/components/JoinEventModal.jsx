@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaTimes } from 'react-icons/fa';
+import { API_ENDPOINTS } from '@/lib/config';
 
 const JoinEventModal = ({ isOpen, onClose, event }) => {
   const router = useRouter();
@@ -22,7 +23,7 @@ const JoinEventModal = ({ isOpen, onClose, event }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:5656/api/events/register/${event.id}/`, {
+      const response = await fetch(API_ENDPOINTS.REGISTER_FOR_EVENT(event.id), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

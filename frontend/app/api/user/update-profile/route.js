@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { API_ENDPOINTS } from '@/lib/config';
 
 export async function PUT(request) {
   try {
@@ -18,8 +19,8 @@ export async function PUT(request) {
     
     // Use the appropriate endpoint based on user type
     const endpoint = isOrganizer 
-      ? 'http://127.0.0.1:5656/api/accounts/organizer/profile/'
-      : 'http://127.0.0.1:5656/api/accounts/attendee/profile/';
+      ? API_ENDPOINTS.UPDATE_ORGANIZER_PROFILE
+      : API_ENDPOINTS.UPDATE_ATTENDEE_PROFILE;
 
     const response = await fetch(endpoint, {
       method: 'PUT',

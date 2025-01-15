@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FaUser, FaEnvelope, FaPhone, FaUniversity, FaCamera } from 'react-icons/fa';
 import { getUniversities, searchUniversities } from '@/lib/data/universityData';
 import * as Yup from 'yup';
+import { API_ENDPOINTS } from '@/lib/config';
 
 // Validation schema
 const validationSchema = Yup.object({
@@ -71,7 +72,7 @@ export default function SettingsPage() {
         }
 
         // Fetch user profile data
-        const response = await fetch('http://127.0.0.1:5656/api/accounts/attendee/profile/', {
+        const response = await fetch(API_ENDPOINTS.UPDATE_PROFILE, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -198,7 +199,7 @@ export default function SettingsPage() {
       
       if (currentUser && formData.email !== currentUser.email) {
         // Update email first
-        const emailUpdateResponse = await fetch('http://127.0.0.1:5656/api/accounts/attendee/profile/email/', {
+        const emailUpdateResponse = await fetch(API_ENDPOINTS.UPDATE_EMAIL, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -231,7 +232,7 @@ export default function SettingsPage() {
         formDataToSend.append('profilePicture', formData.avatar);
       }
 
-      const response = await fetch('http://127.0.0.1:5656/api/accounts/attendee/profile/', {
+      const response = await fetch(API_ENDPOINTS.UPDATE_PROFILE, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
