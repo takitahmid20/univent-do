@@ -1,7 +1,6 @@
 from pathlib import Path
 import os
 from datetime import timedelta
-import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -99,10 +98,15 @@ DB_HOST = os.environ.get('DB_HOST', 'aws-0-ap-southeast-1.pooler.supabase.com')
 DB_PORT = os.environ.get('DB_PORT', '6543')
 DB_NAME = os.environ.get('DB_NAME', 'postgres')
 
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-
 DATABASES = {
-    'default': dj_database_url.config(default=DATABASE_URL)
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+    }
 }
 
 
