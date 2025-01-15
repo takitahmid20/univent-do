@@ -6,7 +6,7 @@ export const API_ENDPOINTS = {
     // Auth endpoints
     LOGIN: `${API_BASE_URL}/api/accounts/login/`,
     ADMIN_LOGIN: `${API_BASE_URL}/api/admin/login/`,
-    REGISTER: `${API_BASE_URL}/api/accounts/register/`,
+    REGISTER: `${API_BASE_URL}/api/accounts/signup/`,
     LOGOUT: `${API_BASE_URL}/api/accounts/logout/`,
     
     // User endpoints

@@ -52,7 +52,7 @@ export default function SigninPage() {
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       setApiError('');
-      const response = await fetch('/api/accounts/signin', {
+      const response = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

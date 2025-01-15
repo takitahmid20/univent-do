@@ -83,6 +83,7 @@ function EditEventPage({ eventId }) {
           return;
         }
 
+        console.log('Fetching event with ID:', eventId);
         const response = await fetch(API_ENDPOINTS.GET_EVENT_DETAILS(eventId), {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -96,6 +97,7 @@ function EditEventPage({ eventId }) {
         }
 
         const event = await response.json();
+        console.log('Received event data:', event);
         
         // Format the date
         const eventDate = new Date(event.event_date);

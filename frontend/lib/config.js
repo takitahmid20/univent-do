@@ -6,7 +6,7 @@ export const API_ENDPOINTS = {
     // Auth endpoints
     LOGIN: `${API_BASE_URL}/api/accounts/login/`,
     ADMIN_LOGIN: `${API_BASE_URL}/api/admin/login/`,
-    REGISTER: `${API_BASE_URL}/api/accounts/register/`,
+    REGISTER: `${API_BASE_URL}/api/accounts/signup/`,
     LOGOUT: `${API_BASE_URL}/api/accounts/logout/`,
     
     // User endpoints
@@ -18,10 +18,11 @@ export const API_ENDPOINTS = {
     // Event endpoints
     CREATE_EVENT: `${API_BASE_URL}/api/events/create/`,
     GET_EVENTS: `${API_BASE_URL}/api/events/`,
-    GET_EVENT_DETAILS: (slug) => `${API_BASE_URL}/api/events/public/${slug}/`,
+    GET_EVENT_DETAILS: (eventId) => `${API_BASE_URL}/api/events/get/${eventId}/`,
+    GET_PUBLIC_EVENT: (slug) => `${API_BASE_URL}/api/events/public/${slug}/`,
     UPDATE_EVENT: (eventId) => `${API_BASE_URL}/api/events/update/${eventId}/`,
     DELETE_EVENT: (eventId) => `${API_BASE_URL}/api/events/delete/${eventId}/`,
-    UPLOAD_IMAGE: `${API_BASE_URL}/api/events/upload-image/`,
+    UPLOAD_IMAGE: `${API_BASE_URL}/api/events/upload/`,
     
     // Registration endpoints
     REGISTER_FOR_EVENT: (eventId) => `${API_BASE_URL}/api/events/register/${eventId}/`,
