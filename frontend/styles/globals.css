@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* styles/globals.css */
+
+/* Box-sizing to include padding and border in width and height */
+* {
+    box-sizing: border-box;
+  }
+  
+  /* Prevent horizontal scrolling */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;  /* Prevent horizontal scrolling */
+  }
+  
+  /* Set the global minimum width and height */
+  html {
+    min-width: 100%;
+    height: 100%;
+  }
+  
+  body {
+    width: 100vw;  /* Viewport width */
+    height: 100vh; /* Viewport height */
+    font-family: 'Roboto', sans-serif; /* Or any other global font */
+    overflow-x: hidden;  /* Prevent horizontal scrolling */
+  }
+  
+  /* Ensure main content takes full width */
+  main {
+    width: 100%;
+    margin: 0 auto;
+    overflow-x: hidden;  /* Just in case horizontal overflow happens in the content */
+  }
+
+  /* Add to your globals.css */
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  display: none;
+}
+
+.swiper-button-disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed;
+}
+  

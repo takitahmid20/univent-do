@@ -1,0 +1,130 @@
+"use client";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaTicketAlt, FaMoneyBillWave } from 'react-icons/fa';
+
+export default function EventDetails({ event }) {
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
+
+  const handleButtonClick = () => {
+    if (!isAuthenticated) {
+      router.push('/signin');
+    } else {
+      setShowRegistrationModal(true);
+    }
+  };
+
+  if (!event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-600">Event not found</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      {/* Event Header */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        {event.image_url && (
+          <div className="w-full h-96 relative">
+            <img
+              src={event.image_url}
+              alt={event.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        
+        <div className="p-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{event.title}</h1>
+          
+          {/* Event Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="space-y-4">
+              <div className="flex items-center text-gray-600">
+                <FaMapMarkerAlt className="w-5 h-5 mr-2 text-[#f6405f]" />
+                <span>{event.venue} - {event.address}</span>
+              </div>
+              <div className="flex items-center text-gray-600">
+                <FaCalendarAlt className="w-5 h-5 mr-2 text-[#f6405f]" />
+                <span>{new Date(event.event_date).toLocaleDateString()}</span>
+              </div>
+              <div className="flex items-center text-gray-600">
+                <FaClock className="w-5 h-5 mr-2 text-[#f6405f]" />
+                <span>{event.event_time}</span>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center text-gray-600">
+                <FaTicketAlt className="w-5 h-5 mr-2 text-[#f6405f]" />
+                <span>{event.max_attendees ? `${event.max_attendees} seats available` : 'Unlimited seats'}</span>
+              </div>
+              <div className="flex items-center text-gray-600">
+                <FaMoneyBillWave className="w-5 h-5 mr-2 text-[#f6405f]" />
+                <span>{event.ticket_price > 0 ? `$${event.ticket_price}` : 'Free'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="prose max-w-none mb-8">
+            <h2 className="text-2xl font-semibold mb-4">About This Event</h2>
+            <p className="text-gray-600 whitespace-pre-wrap">{event.description}</p>
+          </div>
+
+          {/* Registration Button */}
+          <div className="flex justify-center">
+            <button
+              onClick={handleButtonClick}
+              className="bg-[#f6405f] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#d93350] transition-colors"
+            >
+              {event.ticket_price > 0 ? 'Get Ticket' : 'Register Now'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Authentication Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 className="text-2xl font-semibold mb-4">Authentication Required</h2>
+            <p className="text-gray-600 mb-6">
+              You need to be logged in to register for this event. Please sign in or create an account to continue.
+            </p>
+            <div className="flex flex-col space-y-3">
+              <button
+                onClick={() => router.push('/signin')}
+                className="w-full bg-[#f6405f] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#d93350] transition-colors"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => router.push('/signup')}
+                className="w-full border border-[#f6405f] text-[#f6405f] px-4 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
+              >
+                Create Account
+              </button>
+              <button
+                onClick={() => setShowAuthModal(false)}
+                className="w-full px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

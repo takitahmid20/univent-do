@@ -1,0 +1,72 @@
+graph LR
+    %% Users Entity and Attributes
+    U((Users))
+    U_id[id]
+    U_email[email]
+    U_username[username]
+    U_password[password]
+    U_type[user_type]
+    U --> U_id
+    U --> U_email
+    U --> U_username
+    U --> U_password
+    U --> U_type
+
+    %% Events Entity and Attributes
+    E((Events))
+    E_id[id]
+    E_title[title]
+    E_desc[description]
+    E_venue[venue]
+    E_date[event_date]
+    E_price[ticket_price]
+    E_status[status]
+    E --> E_id
+    E --> E_title
+    E --> E_desc
+    E --> E_venue
+    E --> E_date
+    E --> E_price
+    E --> E_status
+
+    %% Registration Entity and Attributes
+    R((Registrations))
+    R_id[id]
+    R_seats[number_of_seats]
+    R_amount[total_amount]
+    R_qr[qr_code]
+    R_status[status]
+    R --> R_id
+    R --> R_seats
+    R --> R_amount
+    R --> R_qr
+    R --> R_status
+
+    %% Attendee Profile Entity and Attributes
+    AP((Attendee_Profile))
+    AP_name[full_name]
+    AP_phone[phone]
+    AP_uni[university]
+    AP_pic[profile_picture_url]
+    AP --> AP_name
+    AP --> AP_phone
+    AP --> AP_uni
+    AP --> AP_pic
+
+    %% Organizer Profile Entity and Attributes
+    OP((Organizer_Profile))
+    OP_org[organization_name]
+    OP_web[website_url]
+    OP_cat[organization_category]
+    OP_desc[description]
+    OP --> OP_org
+    OP --> OP_web
+    OP --> OP_cat
+    OP --> OP_desc
+
+    %% Relationships
+    U ---|1| AP
+    U ---|1| OP
+    U ---|1:M| E
+    U ---|1:M| R
+    E ---|1:M| R

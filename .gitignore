@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual Environments
+venv/
+.env
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Node.js
+node_modules/
+
+# Build
+build/
+dist/
+
+# Frontend
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+
+# Misc
+*.swp
+*.swo
+*.swn
+
+# windsurf rules
+.windsurfrules
+
+# PyCache
+__pycache__/

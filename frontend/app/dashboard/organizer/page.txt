@@ -1,0 +1,324 @@
+'use client';
+
+import { useState } from 'react';
+import QrScanner from 'react-qr-scanner';
+import { 
+  FaCalendarAlt, 
+  FaUsers, 
+  FaMoneyBillWave, 
+  FaClock,
+  FaMapMarkerAlt,
+  FaQrCode,
+  FaTimes,
+  FaUser
+} from 'react-icons/fa';
+
+// Sample data
+const organizerData = {
+  stats: {
+    totalEvents: 12,
+    activeEvents: 3,
+    totalParticipants: 450,
+    totalRevenue: 15000
+  },
+  upcomingEvents: [
+    {
+      id: 1,
+      title: 'Tech Conference 2024',
+      date: 'March 15, 2024',
+      time: '9:00 AM - 6:00 PM',
+      location: 'San Francisco Convention Center',
+      registeredCount: 245,
+      maxCapacity: 500,
+      image: 'https://images.pexels.com/photos/2608517/pexels-photo-2608517.jpeg',
+      status: 'Registration Open'
+    }
+  ],
+  recentRegistrations: [
+    {
+      id: 1,
+      eventTitle: 'Tech Conference 2024',
+      participantName: 'John Doe',
+      registrationDate: '2024-02-20',
+      ticketType: 'Regular'
+    }
+  ]
+};
+
+// QR Scanner Modal Component
+function QRScannerModal({ isOpen, onClose, event }) {
+  const [scanResult, setScanResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleScan = (data) => {
+    if (data) {
+      try {
+        const scannedData = JSON.parse(data.text);
+        if (scannedData.eventId === event.id) {
+          setScanResult({
+            success: true,
+            message: `Verified: ${scannedData.attendeeName}`,
+            data: scannedData
+          });
+          // Auto close after successful scan
+          setTimeout(() => {
+            onClose();
+          }, 2000);
+        } else {
+          setScanResult({
+            success: false,
+            message: "Invalid ticket: Wrong event"
+          });
+        }
+      } catch (error) {
+        setScanResult({
+          success: false,
+          message: "Invalid QR code"
+        });
+      }
+    }
+  };
+
+  const handleError = (err) => {
+    setError(err.message);
+  };
+
+  return isOpen ? (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl max-w-md w-full p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Check-in: {event.title}</h3>
+          <button 
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <FaTimes className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Event Details */}
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+          <div className="text-sm text-gray-600 space-y-1">
+            <div className="flex items-center gap-2">
+              <FaCalendarAlt className="w-4 h-4" />
+              <span>{event.date}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FaMapMarkerAlt className="w-4 h-4" />
+              <span>{event.location}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Scanner */}
+        <div className="aspect-square rounded-lg overflow-hidden bg-black mb-4">
+          <QrScanner
+            delay={300}
+            onError={handleError}
+            onScan={handleScan}
+            style={{ width: '100%', height: '100%' }}
+            constraints={{
+              audio: false,
+              video: { facingMode: "environment" }
+            }}
+          />
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        {/* Scan Result */}
+        {scanResult && (
+          <div className={`p-4 rounded-lg ${
+            scanResult.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          }`}>
+            <p className="font-medium">{scanResult.message}</p>
+            {scanResult.data && (
+              <div className="mt-2 text-sm">
+                <p>Ticket ID: {scanResult.data.ticketId}</p>
+                <p>Registration Date: {scanResult.data.registrationDate}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        <p className="text-sm text-gray-500 mt-4 text-center">
+          Point your camera at the attendee's QR code to scan
+        </p>
+      </div>
+    </div>
+  ) : null;
+}
+
+export default function OrganizerDashboard() {
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showScanner, setShowScanner] = useState(false);
+
+  return (
+    <div className="max-w-7xl mx-auto p-6">
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-xl shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Total Events</p>
+              <h3 className="text-2xl font-bold mt-1">{organizerData.stats.totalEvents}</h3>
+            </div>
+            <div className="bg-blue-100 p-3 rounded-lg">
+              <FaCalendarAlt className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Active Events</p>
+              <h3 className="text-2xl font-bold mt-1">{organizerData.stats.activeEvents}</h3>
+            </div>
+            <div className="bg-green-100 p-3 rounded-lg">
+              <FaClock className="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Total Participants</p>
+              <h3 className="text-2xl font-bold mt-1">{organizerData.stats.totalParticipants}</h3>
+            </div>
+            <div className="bg-purple-100 p-3 rounded-lg">
+              <FaUsers className="w-6 h-6 text-purple-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Total Revenue</p>
+              <h3 className="text-2xl font-bold mt-1">${organizerData.stats.totalRevenue}</h3>
+            </div>
+            <div className="bg-yellow-100 p-3 rounded-lg">
+              <FaMoneyBillWave className="w-6 h-6 text-yellow-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Upcoming Events */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-xl shadow">
+            <div className="p-6 border-b">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Upcoming Events</h2>
+                <button className="text-[#f6405f] hover:text-[#d63850] font-medium">
+                  View All
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="space-y-6">
+                {organizerData.upcomingEvents.map((event) => (
+                  <div key={event.id} className="flex gap-4">
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="w-24 h-24 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-medium text-lg">{event.title}</h3>
+                        <button
+                          onClick={() => {
+                            setSelectedEvent(event);
+                            setShowScanner(true);
+                          }}
+                          className="p-2 bg-[#f6405f] text-white rounded-lg hover:bg-[#d63850]"
+                          title="Scan Check-in QR"
+                        >
+                          <FaQrCode className="w-5 h-5" />
+                        </button>
+                      </div>
+                      <div className="mt-1 space-y-1">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <FaCalendarAlt className="w-4 h-4 mr-2" />
+                          {event.date}
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <FaClock className="w-4 h-4 mr-2" />
+                          {event.time}
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <FaMapMarkerAlt className="w-4 h-4 mr-2" />
+                          {event.location}
+                        </div>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <FaUsers className="text-gray-400" />
+                          <span className="text-sm text-gray-600">
+                            {event.registeredCount}/{event.maxCapacity} registered
+                          </span>
+                        </div>
+                        <span className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                          {event.status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Registrations */}
+        <div>
+          <div className="bg-white rounded-xl shadow">
+            <div className="p-6 border-b">
+              <h2 className="text-xl font-semibold">Recent Check-ins</h2>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {organizerData.recentRegistrations.map((registration) => (
+                  <div key={registration.id} className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                      <FaUser className="text-gray-500" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium">{registration.participantName}</h4>
+                      <p className="text-sm text-gray-500">{registration.eventTitle}</p>
+                      <p className="text-xs text-gray-400">{registration.registrationDate}</p>
+                    </div>
+                    <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                      {registration.ticketType}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* QR Scanner Modal */}
+      <QRScannerModal
+        isOpen={showScanner}
+        onClose={() => {
+          setShowScanner(false);
+          setSelectedEvent(null);
+        }}
+        event={selectedEvent}
+      />
+    </div>
+  );
+}

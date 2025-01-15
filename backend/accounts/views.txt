@@ -1,0 +1,154 @@
+# accounts/views.py
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from rest_framework.decorators import api_view
+from .serializers import UserSerializer, UserProfileSerializer, OrganizationSerializer
+from .models import UserProfile, Organization, Profile
+from rest_framework.views import APIView
+from django.contrib.auth import get_user_model
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+User = get_user_model()
+
+
+@api_view(['POST'])
+def register(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        
+        # Get user profile
+        try:
+            profile = Profile.objects.get(user=self.user)
+            user_type = profile.user_type
+        except Profile.DoesNotExist:
+            user_type = None
+            
+        # Get user profile details
+        try:
+            user_profile = UserProfile.objects.get(user=self.user)
+            profile_data = {
+                'name': user_profile.name,
+                'university': user_profile.university,
+                'department': user_profile.department,
+                'student_id': user_profile.student_id,
+                'avatar': user_profile.avatar.url if user_profile.avatar else None,
+            }
+        except UserProfile.DoesNotExist:
+            profile_data = {}
+            
+        # Get organization details if user is organizer
+        organization_data = {}
+        if user_type == 'organizer':
+            try:
+                org = Organization.objects.get(user=self.user)
+                organization_data = {
+                    'org_name': org.name,
+                    'org_email': org.email,
+                    'org_website': org.website,
+                    'org_category': org.category,
+                }
+            except Organization.DoesNotExist:
+                pass
+
+        # Update response with user details
+        data.update({
+            "user_id": self.user.id,
+            "username": self.user.username,
+            "email": self.user.email,
+            "user_type": user_type,
+            "profile": profile_data,
+            "organization": organization_data if user_type == 'organizer' else None,
+        })
+        
+        return data
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_user_profile(request):
+    # Get or create a UserProfile for the authenticated user
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    serializer = UserProfileSerializer(profile, data=request.data, partial=True)  # partial=True allows updating some fields
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "User profile updated successfully"}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_profile(request):
+    # Fetch the user's profile
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    serializer = UserProfileSerializer(profile)
+    return Response(serializer.data)
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # Get the refresh token from request data
+            refresh_token = request.data.get('refresh_token')
+            
+            if not refresh_token:
+                return Response(
+                    {"error": "Refresh token is required"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Get token object
+            token = RefreshToken(refresh_token)
+            
+            # Blacklist the token
+            token.blacklist()
+
+            return Response(
+                {"message": "Successfully logged out"}, 
+                status=status.HTTP_200_OK
+            )
+            
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def organization_profile(request):
+    try:
+        profile = Profile.objects.get(user=request.user)
+        if profile.user_type != 'organizer':
+            return Response({"error": "You do not have permission to access this profile."}, status=status.HTTP_403_FORBIDDEN)
+    except Profile.DoesNotExist:
+        return Response({"error": "User profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    # Get or create the organization for the authenticated user
+    organization, created = Organization.objects.get_or_create(user=request.user)
+
+    if request.method == 'GET':
+        serializer = OrganizationSerializer(organization, context={'request': request})
+        return Response(serializer.data)
+
+    if request.method == 'PUT':
+        serializer = OrganizationSerializer(organization, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Organization profile updated successfully"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,0 +1,25 @@
+/* styles/Navbar.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add any custom styles you need here */
+.navbar {
+  @apply sticky top-0 z-50;
+}
+
+/* Animation for dropdown */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.group:hover .group-hover\:visible {
+  animation: fadeIn 0.2s ease-out;
+}
