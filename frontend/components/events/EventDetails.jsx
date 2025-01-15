@@ -17,7 +17,7 @@ import {
 import JoinEventModal from '@/components/JoinEventModal';
 import EventParticipants from './EventParticipants';
 
-const EventDetails = ({ event }) => {
+const EventDetails = ({ event, API_BASE_URL }) => {
   const [showCopyAlert, setShowCopyAlert] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOrganizer, setIsOrganizer] = useState(false);
@@ -27,6 +27,8 @@ const EventDetails = ({ event }) => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const router = useRouter();
   const eventUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  console.log('Event data in EventDetails:', event);
 
   useEffect(() => {
     const userType = localStorage.getItem('userType');
@@ -112,7 +114,7 @@ const EventDetails = ({ event }) => {
       {/* Hero Section */}
       <div className="relative h-96 rounded-2xl overflow-hidden mb-8">
         <img
-          src={event.imageUrl || '/default-event-image.jpg'}
+          src={event.imageUrl ? `${API_BASE_URL}${event.imageUrl}` : '/default-event-image.jpg'}
           alt={event.title}
           className="w-full h-full object-cover"
           onError={(e) => {

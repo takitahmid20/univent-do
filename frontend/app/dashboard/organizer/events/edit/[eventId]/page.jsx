@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { FaImage, FaMapMarkerAlt, FaCalendar, FaClock, FaTicketAlt, FaInfoCircle, FaUsers, FaTimes } from 'react-icons/fa';
 import * as Yup from 'yup';
 import { use } from 'react';
-import { API_ENDPOINTS } from '@/lib/config';
+import { API_ENDPOINTS, API_BASE_URL } from '@/lib/config';
 
 const EVENT_CATEGORIES = [
   { value: 'tech', label: 'Technology' },
@@ -125,8 +125,11 @@ function EditEventPage({ eventId }) {
         // Set image preview if exists (check both banner_image and image_url)
         const imageUrl = event.banner_image || event.image_url;
         if (imageUrl) {
-          setImagePreview(imageUrl);
-          console.log('Setting image preview:', imageUrl);
+          // Convert the image URL to use our API_BASE_URL
+          const imagePath = imageUrl.split('/media/')[1];
+          const correctedImageUrl = imagePath ? `${API_BASE_URL}/media/${imagePath}` : null;
+          setImagePreview(correctedImageUrl);
+          console.log('Setting image preview:', correctedImageUrl);
         }
 
         setIsLoading(false);
@@ -218,8 +221,10 @@ function EditEventPage({ eventId }) {
       
       // Update image preview if new image URL is returned
       if (updatedEvent.image_url) {
-        setImagePreview(updatedEvent.image_url);
-        console.log('Updated image preview:', updatedEvent.image_url);
+        const imagePath = updatedEvent.image_url.split('/media/')[1];
+        const correctedImageUrl = imagePath ? `${API_BASE_URL}/media/${imagePath}` : null;
+        setImagePreview(correctedImageUrl);
+        console.log('Updated image preview:', correctedImageUrl);
       }
 
       router.push('/dashboard/organizer/events');
