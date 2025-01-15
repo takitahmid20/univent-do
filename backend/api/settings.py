@@ -6,25 +6,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-at(eeh-@!(90=+e86wg1=&caxrh!o&monc@klw*-b%vi&bledp'
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.68.106', '172.20.10.3', 'exp://192.168.68.106:19000', '10.15.12.123']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '146.190.103.123']
 
 # CORS settings
-CORS_ALLOW_ALL_ORIGINS = True  # Only for development
+CORS_ALLOW_ALL_ORIGINS = False  # Only for development
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://192.168.68.106:3000",
-    "exp://192.168.68.106:19000",
-    "http://172.20.10.3:3000",
-    "exp://172.20.10.3:19000",
-    "http://10.15.12.123:3000",
-    "exp://10.15.12.123:19000",
+    "http://146.190.103.123",
+    "http://146.190.103.123:3000"
 ]
-# 172.20.10.3
-# 10.15.12.123
 CORS_ALLOWED_METHODS = [
     'GET',
     'POST',

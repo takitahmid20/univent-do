@@ -1,0 +1,13 @@
+[Unit]
+Description=Univent Frontend Service
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/root/univent-do/frontend
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npm start
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
