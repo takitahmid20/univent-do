@@ -18,6 +18,8 @@ services:
         value: 6543
       - key: DB_NAME
         value: postgres
+      - key: DB_PROJECT_REF
+        value: ecfrowbxdndascmozjka
       - key: DJANGO_SECRET_KEY
         sync: false
       - key: DEBUG
