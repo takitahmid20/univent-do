@@ -245,7 +245,7 @@ class UpdateEventView(APIView):
                             destination.write(chunk)
                     
                     # Set full image URL
-                    event_data['image_url'] = f"http://127.0.0.1:5656/media/events/{filename}"
+                    event_data['image_url'] = f"{settings.SITE_URL}/media/events/{filename}"
                     print(f"Image saved successfully. URL: {event_data['image_url']}")
                     
                 except Exception as e:
@@ -569,7 +569,7 @@ class PublicEventsView(APIView):
                     # Add domain to image URL if it's a relative path
                     image_url = event[5]
                     if image_url and not image_url.startswith('http'):
-                        image_url = f"http://127.0.0.1:5656{image_url}"
+                        image_url = f"{settings.SITE_URL}{image_url}"
 
                     formatted_events.append({
                         "id": str(event[0]),
@@ -646,7 +646,7 @@ class ImageUploadView(APIView):
                     destination.write(chunk)
 
             # Return the URL with full domain
-            image_url = f"http://127.0.0.1:5656/media/events/{filename}"
+            image_url = f"{settings.SITE_URL}/media/events/{filename}"
             return Response({
                 'image_url': image_url
             }, status=status.HTTP_201_CREATED)

@@ -1,24 +1,28 @@
 from pathlib import Path
 import os
 from datetime import timedelta
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-at(eeh-@!(90=+e86wg1=&caxrh!o&monc@klw*-b%vi&bledp'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-at(eeh-@!(90=+e86wg1=&caxrh!o&monc@klw*-b%vi&bledp')
 
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '146.190.103.123']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+if os.environ.get('ALLOWED_HOSTS'):
+    ALLOWED_HOSTS.extend(os.environ.get('ALLOWED_HOSTS').split(','))
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = False  # Only for development
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://146.190.103.123",
-    "http://146.190.103.123:3000"
+    "http://127.0.0.1:3000"
 ]
+if os.environ.get('CORS_ALLOWED_ORIGINS'):
+    CORS_ALLOWED_ORIGINS.extend(os.environ.get('CORS_ALLOWED_ORIGINS').split(','))
+
 CORS_ALLOWED_METHODS = [
     'GET',
     'POST',
@@ -29,7 +33,7 @@ CORS_ALLOWED_METHODS = [
 ]
 
 # Site URL for QR codes and absolute URLs
-SITE_URL = 'http://localhost:5656'  # Change this in production
+SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')  # Will be updated in production
 
 # Application definition
 
@@ -56,6 +60,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -86,17 +91,11 @@ WSGI_APPLICATION = 'api.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres.ecfrowbxdndascmozjka',
-        'PASSWORD': '1234Univent##',
-        'HOST': 'aws-0-ap-southeast-1.pooler.supabase.com',
-        'PORT': '6543',
-    }
+    'default': dj_database_url.config(
+        default='postgresql://postgres:1234Univent##@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres',
+        conn_max_age=600
+    )
 }
 
 
@@ -132,13 +131,14 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
