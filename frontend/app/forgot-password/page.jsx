@@ -41,7 +41,7 @@ const ForgotPasswordPage = () => {
                   Forgot Password?
                 </h1>
                 <p className="text-gray-600">
-                  No worries! Enter your email and we'll send you reset instructions.
+                  Don&apos;t worry, we&apos;ll help you reset it.
                 </p>
               </div>
 
@@ -115,7 +115,7 @@ const ForgotPasswordPage = () => {
                 Check Your Email
               </h2>
               <p className="text-gray-600 mb-8">
-                We've sent password reset instructions to your email address. If you don't see it, check your spam folder.
+                We&apos;ve sent a password reset link to your email.
               </p>
               <div className="space-y-4">
                 <button

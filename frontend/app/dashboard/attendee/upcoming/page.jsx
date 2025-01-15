@@ -12,12 +12,26 @@ import {
   FaComments,
   FaBan
 } from 'react-icons/fa';
-import events from '@/lib/data/eventData';
 
-// Get unique categories from events
-const categories = ['All', ...new Set(events.map(event => event.category))];
+const getEvents = async () => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/events/public/`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch events');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    return [];
+  }
+};
 
-export default function UpcomingPage() {
+export default async function UpcomingPage() {
+  const events = await getEvents();
+
+  // Get unique categories from events
+  const categories = ['All', ...new Set(events.map(event => event.category))];
+
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState([]);
@@ -51,7 +65,7 @@ export default function UpcomingPage() {
       setFilteredEvents(filtered);
       setIsLoading(false);
     }, 500); // Simulate loading delay
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, events]);
 
   return (
     <div className="space-y-6">

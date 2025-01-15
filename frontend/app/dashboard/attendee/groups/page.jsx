@@ -12,32 +12,46 @@ import {
   FaEllipsisV,
   FaTimes
 } from 'react-icons/fa';
-import events from '@/lib/data/eventData';
 
-// Filter registered events
-const userRegisteredEvents = events.filter(event => {
-  // You can add more conditions based on user registration status
-  return event.joinedCount > 0;
-});
-
-// Extend events with chat data
-const eventGroups = userRegisteredEvents.map(event => ({
-  ...event,
-  onlineMembers: Math.floor(Math.random() * 20) + 1,
-  messages: [
-    {
-      id: 1,
-      sender: event.organizer.name,
-      avatar: event.organizer.logo,
-      message: `Welcome to ${event.title} group! Please check the event details above.`,
-      time: "2:30 PM",
-      isOrganizer: true,
-      status: 'read'
+const getEvents = async () => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/events/public/`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch events');
     }
-  ]
-}));
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    return [];
+  }
+};
 
-export default function EventGroupsPage() {
+export default async function EventGroupsPage() {
+  const events = await getEvents();
+
+  // Filter registered events
+  const userRegisteredEvents = events.filter(event => {
+    // You can add more conditions based on user registration status
+    return event.joinedCount > 0;
+  });
+
+  // Extend events with chat data
+  const eventGroups = userRegisteredEvents.map(event => ({
+    ...event,
+    onlineMembers: Math.floor(Math.random() * 20) + 1,
+    messages: [
+      {
+        id: 1,
+        sender: event.organizer.name,
+        avatar: event.organizer.logo,
+        message: `Welcome to ${event.title} group! Please check the event details above.`,
+        time: "2:30 PM",
+        isOrganizer: true,
+        status: 'read'
+      }
+    ]
+  }));
+
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [message, setMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');

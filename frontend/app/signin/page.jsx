@@ -47,7 +47,7 @@ export default function SigninPage() {
     };
 
     checkAuth();
-  }, []);
+  }, [router]);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {

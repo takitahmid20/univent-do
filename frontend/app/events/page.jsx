@@ -1,9 +1,21 @@
 // app/events/page.jsx
 import Link from 'next/link';
-import { getAllEvents } from '@/lib/data/eventData';
+
+const getAllEvents = async () => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/events/public/`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch events');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    return [];
+  }
+};
 
 export default async function EventsPage() {
-  const events = getAllEvents();
+  const events = await getAllEvents();
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
