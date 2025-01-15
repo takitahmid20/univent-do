@@ -5,8 +5,8 @@ After=network.target
 [Service]
 User=root
 WorkingDirectory=/root/univent-do/backend
-Environment="PATH=/root/univent-do/backend/venv/bin"
-ExecStart=/root/univent-do/backend/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:5656 api.wsgi:application
+Environment="PATH=/root/univent-do/backend/venv/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/root/univent-do/backend/venv/bin/python3 -m gunicorn --workers 3 --bind 0.0.0.0:5656 api.wsgi:application
 Restart=always
 
 [Install]
