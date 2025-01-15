@@ -47,8 +47,17 @@ CORS_ALLOWED_HEADERS = [
     "x-requested-with",
 ]
 
-# Site URL for QR codes and absolute URLs
-SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')  # Will be updated in production
+# Site URL for media and absolute URLs
+SITE_URL = os.environ.get('SITE_URL', 'https://univent-backend.onrender.com')
+
+# Media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Function to generate absolute URLs for media files
+def get_media_url(request, path):
+    """Construct the full media URL using SITE_URL"""
+    return f"{SITE_URL}{MEDIA_URL}{path}"
 
 # Application definition
 
@@ -153,10 +162,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
