@@ -123,12 +123,18 @@ const FeaturedOrganizers = () => {
                   </h4>
                   <div className="space-y-1">
                     {organizer.upcoming_events.map((event, index) => (
-                      <p 
+                      <Link 
+                        href={`/events/${event.slug}`}
                         key={index}
-                        className="text-sm text-gray-600 truncate hover:text-[#f6405f]"
+                        className="block"
                       >
-                        {event}
-                      </p>
+                        <div className="text-sm text-gray-600 truncate hover:text-[#f6405f]">
+                          <span>{event.title}</span>
+                          {event.venue && (
+                            <span className="text-gray-400 ml-2">• {event.venue}</span>
+                          )}
+                        </div>
+                      </Link>
                     ))}
                   </div>
                 </div>

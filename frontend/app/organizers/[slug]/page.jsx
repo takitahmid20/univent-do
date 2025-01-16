@@ -199,7 +199,7 @@ const OrganizerDetailsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {(activeTab === 'upcoming' ? (organizer.upcoming_events || []).filter(Boolean) : []).map((event, index) => (
                 <Link 
-                  href={`/events/${event.title.toLowerCase().replace(/\s+/g, '-')}`} 
+                  href={`/events/${event.slug}`} 
                   key={index}
                 >
                   <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-6">
