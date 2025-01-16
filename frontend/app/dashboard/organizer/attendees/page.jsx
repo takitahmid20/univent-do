@@ -220,7 +220,7 @@ export default function AttendeesPage() {
   }, [eventId, router]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="w-full max-w-full overflow-hidden">
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
@@ -229,24 +229,24 @@ export default function AttendeesPage() {
 
       {/* Event Statistics */}
       {eventDetails && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow-lg border-l-4 border-blue-500">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="bg-white p-3 sm:p-4 rounded-lg shadow-lg border-l-4 border-blue-500">
             <h3 className="text-sm font-semibold text-gray-700">Total Registrations</h3>
-            <p className="text-2xl font-bold text-blue-600">{eventDetails.registrationsCount}</p>
+            <p className="text-xl sm:text-2xl font-bold text-blue-600">{eventDetails.registrationsCount}</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-lg border-l-4 border-green-500">
+          <div className="bg-white p-3 sm:p-4 rounded-lg shadow-lg border-l-4 border-green-500">
             <h3 className="text-sm font-semibold text-gray-700">Total Seats Booked</h3>
-            <p className="text-2xl font-bold text-green-600">{eventDetails.totalSeatsBooked}</p>
+            <p className="text-xl sm:text-2xl font-bold text-green-600">{eventDetails.totalSeatsBooked}</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-lg border-l-4 border-purple-500">
+          <div className="bg-white p-3 sm:p-4 rounded-lg shadow-lg border-l-4 border-purple-500">
             <h3 className="text-sm font-semibold text-gray-700">Available Seats</h3>
-            <p className="text-2xl font-bold text-purple-600">
+            <p className="text-xl sm:text-2xl font-bold text-purple-600">
               {eventDetails.maxAttendees ? eventDetails.availableSeats : 'Unlimited'}
             </p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-lg border-l-4 border-orange-500">
+          <div className="bg-white p-3 sm:p-4 rounded-lg shadow-lg border-l-4 border-orange-500">
             <h3 className="text-sm font-semibold text-gray-700">Checked In</h3>
-            <p className="text-2xl font-bold text-orange-600">
+            <p className="text-xl sm:text-2xl font-bold text-orange-600">
               {filteredParticipants.filter(p => p.check_in_status).length}
             </p>
           </div>
@@ -254,9 +254,9 @@ export default function AttendeesPage() {
       )}
 
       {/* Filters Section */}
-      <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">Filter Participants</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-lg mb-4 sm:mb-6 overflow-hidden">
+        <h2 className="text-lg font-semibold text-gray-700 mb-3 sm:mb-4">Filter Participants</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
           {/* Search Input */}
           <div className="relative">
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
@@ -265,7 +265,7 @@ export default function AttendeesPage() {
               placeholder="Search by name or email"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f6405f]"
             />
           </div>
 
@@ -274,7 +274,7 @@ export default function AttendeesPage() {
             <select
               value={filters.checkInStatus}
               onChange={(e) => setFilters(prev => ({ ...prev, checkInStatus: e.target.value }))}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f6405f]"
             >
               <option value="all">All Attendees</option>
               <option value="checked-in">Checked In</option>
@@ -283,19 +283,19 @@ export default function AttendeesPage() {
           </div>
 
           {/* Date Range Filters */}
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="date"
               value={filters.startDate}
               onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f6405f]"
               placeholder="Start Date"
             />
             <input
               type="date"
               value={filters.endDate}
               onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f6405f]"
               placeholder="End Date"
             />
           </div>
@@ -308,34 +308,34 @@ export default function AttendeesPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort('username')}>
+                <th scope="col" className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer whitespace-nowrap" onClick={() => handleSort('username')}>
                   <div className="flex items-center gap-2">
                     Attendee
-                    <FaSort className={sortConfig.key === 'username' ? 'text-blue-500' : 'text-gray-400'} />
+                    <FaSort className={sortConfig.key === 'username' ? 'text-[#f6405f]' : 'text-gray-400'} />
                   </div>
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort('number_of_seats')}>
+                <th scope="col" className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer whitespace-nowrap" onClick={() => handleSort('number_of_seats')}>
                   <div className="flex items-center gap-2">
                     Seats
-                    <FaSort className={sortConfig.key === 'number_of_seats' ? 'text-blue-500' : 'text-gray-400'} />
+                    <FaSort className={sortConfig.key === 'number_of_seats' ? 'text-[#f6405f]' : 'text-gray-400'} />
                   </div>
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Amount
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort('registration_date')}>
+                <th scope="col" className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer whitespace-nowrap" onClick={() => handleSort('registration_date')}>
                   <div className="flex items-center gap-2">
                     Registration Date
-                    <FaSort className={sortConfig.key === 'registration_date' ? 'text-blue-500' : 'text-gray-400'} />
+                    <FaSort className={sortConfig.key === 'registration_date' ? 'text-[#f6405f]' : 'text-gray-400'} />
                   </div>
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort('check_in_time')}>
+                <th scope="col" className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer whitespace-nowrap" onClick={() => handleSort('check_in_time')}>
                   <div className="flex items-center gap-2">
                     Check-in Time
-                    <FaSort className={sortConfig.key === 'check_in_time' ? 'text-blue-500' : 'text-gray-400'} />
+                    <FaSort className={sortConfig.key === 'check_in_time' ? 'text-[#f6405f]' : 'text-gray-400'} />
                   </div>
                 </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Actions
                 </th>
               </tr>
@@ -343,44 +343,44 @@ export default function AttendeesPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-4 text-center">
+                  <td colSpan="6" className="px-3 sm:px-6 py-4 text-center">
                     <FaSpinner className="animate-spin inline mr-2" />
                     Loading...
                   </td>
                 </tr>
               ) : filteredParticipants.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan="6" className="px-3 sm:px-6 py-4 text-center text-gray-500">
                     No participants found
                   </td>
                 </tr>
               ) : (
                 filteredParticipants.map((participant) => (
                   <tr key={participant.registration_id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col">
                         <div className="flex items-center">
-                          <FaUser className="text-gray-400 mr-2" />
-                          <span className="font-medium text-gray-900">{participant.username}</span>
+                          <FaUser className="text-gray-400 mr-2 flex-shrink-0" />
+                          <span className="font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">{participant.username}</span>
                         </div>
-                        <div className="text-sm text-gray-500 ml-6">
+                        <div className="text-sm text-gray-500 ml-6 truncate max-w-[120px] sm:max-w-none">
                           {participant.email}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {participant.number_of_seats}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {participant.total_amount}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDateTime(participant.registration_date)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDateTime(participant.check_in_time)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => toggleCheckIn(participant.registration_id)}
                         disabled={checkingIn === participant.registration_id}
@@ -388,7 +388,7 @@ export default function AttendeesPage() {
                           participant.check_in_status
                             ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
                             : 'bg-green-100 text-green-700 hover:bg-green-200'
-                        } px-4 py-2 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2`}
+                        } px-2 sm:px-4 py-2 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm`}
                       >
                         {checkingIn === participant.registration_id ? (
                           <FaSpinner className="animate-spin" />
@@ -397,7 +397,12 @@ export default function AttendeesPage() {
                         ) : (
                           <FaCheckCircle />
                         )}
-                        {participant.check_in_status ? 'Revert Check-in' : 'Check In'}
+                        <span className="hidden sm:inline">
+                          {participant.check_in_status ? 'Revert Check-in' : 'Check In'}
+                        </span>
+                        <span className="sm:hidden">
+                          {participant.check_in_status ? 'Revert' : 'Check'}
+                        </span>
                       </button>
                     </td>
                   </tr>
