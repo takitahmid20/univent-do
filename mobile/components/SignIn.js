@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Linking } from 'react-native';
 
 // const API_BASE_URL = 'http://172.20.10.3:5656';
-const API_BASE_URL = 'http://10.15.12.123:5656';
+const API_BASE_URL = 'https://univent-backend.onrender.com';
 
 // 10.15.12.123
 // 192.168.68.106

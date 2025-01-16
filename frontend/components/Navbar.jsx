@@ -100,7 +100,7 @@ const Navbar = () => {
               </Link>
             )}
             {isAuthenticated && userRole === 'attendee' && (
-              <Link href="/dashboard/user" className="text-gray-700 hover:text-[#f6405f] font-medium">
+              <Link href="/dashboard/attendee" className="text-gray-700 hover:text-[#f6405f] font-medium">
                 Dashboard
               </Link>
             )}
@@ -145,7 +145,7 @@ const Navbar = () => {
                       )}
                       {userRole === 'attendee' && (
                         <Link 
-                          href="/dashboard/user"
+                          href="/dashboard/attendee"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           Dashboard
@@ -221,7 +221,7 @@ const Navbar = () => {
                   )}
                   {userRole === 'attendee' && (
                     <Link 
-                      href="/dashboard/user" 
+                      href="/dashboard/attendee" 
                       className="block px-3 py-2 text-gray-700 hover:text-[#f6405f] hover:bg-gray-50"
                     >
                       Dashboard

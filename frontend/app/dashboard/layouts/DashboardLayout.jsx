@@ -45,18 +45,18 @@ const navigationLinks = {
     {
       title: 'Events',
       links: [
-        { name: 'Dashboard', href: '/dashboard/user', icon: FaChartBar },
-        { name: 'My Tickets', href: '/dashboard/user/tickets', icon: FaTicketAlt },
-        { name: 'Upcoming Events', href: '/dashboard/user/upcoming', icon: FaCalendarAlt },
-        { name: 'Event Groups', href: '/dashboard/user/groups', icon: FaUsers },
+        { name: 'Dashboard', href: '/dashboard/attendee', icon: FaChartBar },
+        { name: 'My Tickets', href: '/dashboard/attendee/tickets', icon: FaTicketAlt },
+        { name: 'Upcoming Events', href: '/dashboard/attendee/upcoming', icon: FaCalendarAlt },
+        { name: 'Event Groups', href: '/dashboard/attendee/groups', icon: FaUsers },
       ]
     },
     {
       title: 'Account',
       links: [
-        { name: 'Profile', href: '/dashboard/user/profile', icon: FaUser },
-        { name: 'Messages', href: '/dashboard/user/messages', icon: FaComments },
-        { name: 'Settings', href: '/dashboard/user/settings', icon: FaCog },
+        { name: 'Profile', href: '/dashboard/attendee/profile', icon: FaUser },
+        { name: 'Messages', href: '/dashboard/attendee/messages', icon: FaComments },
+        { name: 'Settings', href: '/dashboard/attendee/settings', icon: FaCog },
       ]
     }
   ],

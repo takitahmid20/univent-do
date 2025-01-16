@@ -36,7 +36,7 @@ export default function Dashboard() {
       const token = await AsyncStorage.getItem('userToken');
       console.log('Token:', token);
 
-      const response = await axios.get('http://10.15.12.123:5656/api/accounts/organizer/profile/', {
+      const response = await axios.get('https://univent-backend.onrender.com/api/accounts/organizer/profile/', {
         // const response = await axios.get('http://172.20.10.3:5656/api/accounts/organizer/profile/', {
     //const response = await axios.get('http://192.168.68.106:5656/api/accounts/organizer/profile/', {
     // 10.15.12.123

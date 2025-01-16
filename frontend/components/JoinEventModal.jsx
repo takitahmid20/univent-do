@@ -40,7 +40,7 @@ const JoinEventModal = ({ isOpen, onClose, event }) => {
           router.push(`/payment/${data.registration_id}`);
         } else {
           alert('Registration successful! Check your dashboard for the ticket.');
-          router.push('/dashboard/user/tickets');
+          router.push('/dashboard/attendee/tickets');
         }
       } else {
         alert(data.error || 'Registration failed. Please try again.');

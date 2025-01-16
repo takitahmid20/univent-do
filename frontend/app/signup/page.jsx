@@ -47,7 +47,7 @@ const SignUpPage = () => {
         if (token && userStr) {
           const user = JSON.parse(userStr);
           // Redirect to appropriate dashboard based on user type
-          const dashboardUrl = user.userType === 'organizer' ? '/dashboard/organizer' : '/dashboard/user';
+          const dashboardUrl = user.userType === 'organizer' ? '/dashboard/organizer' : '/dashboard/attendee';
           router.replace(dashboardUrl);
         } else {
           setIsLoading(false);

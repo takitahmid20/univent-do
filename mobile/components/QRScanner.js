@@ -128,7 +128,7 @@ export default function QRScanner({ onClose }) {
       }
 
       const response = await axios.post(
-        'http://10.15.12.123:5656/api/events/check-in/qr/',
+        'https://univent-backend.onrender.com/api/events/check-in/qr/',
         // 'http://172.20.10.3:5656/api/events/check-in/qr/',
         // 'http://192.168.68.106:5656/api/events/check-in/qr/',
         { registration_id: result.data },

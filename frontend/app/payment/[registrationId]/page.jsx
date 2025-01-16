@@ -64,7 +64,7 @@ export default function PaymentPage({ params }) {
 
         if (response.ok) {
           alert('Payment successful! You can now view your ticket in the dashboard.');
-          router.push('/dashboard/user/tickets');
+          router.push('/dashboard/attendee/tickets');
         } else {
           throw new Error('Failed to confirm registration');
         }
