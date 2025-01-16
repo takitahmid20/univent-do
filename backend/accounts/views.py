@@ -915,6 +915,7 @@ class PublicOrganizersListView(APIView):
                         op.organization_name,
                         op.profile_picture_url as logo,
                         op.organization_category as category,
+                        op.slug,
                         COALESCE(ec.event_count, 0) as total_events,
                         STRING_AGG(
                             CASE 
@@ -937,6 +938,7 @@ class PublicOrganizersListView(APIView):
                         op.organization_name, 
                         op.profile_picture_url, 
                         op.organization_category,
+                        op.slug,
                         ec.event_count
                     ORDER BY 
                         COALESCE(ec.event_count, 0) DESC, 
@@ -965,6 +967,7 @@ class PublicOrganizersListView(APIView):
                         'organization_name': org['organization_name'],
                         'logo': org['logo'] or '',
                         'category': org['category'] or '',
+                        'slug': org['slug'] or '',
                         'total_events': org['total_events'],
                         'upcoming_events': upcoming_events
                     }
