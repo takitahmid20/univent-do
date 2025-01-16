@@ -900,10 +900,6 @@ class PublicOrganizersListView(APIView):
                             e.organizer_id,
                             e.title,
                             e.event_date,
-                            e.venue,
-                            e.address,
-                            e.slug as event_slug,
-                            e.feature_image as feature_image_url,
                             ROW_NUMBER() OVER (
                                 PARTITION BY e.organizer_id 
                                 ORDER BY e.event_date ASC
@@ -919,23 +915,14 @@ class PublicOrganizersListView(APIView):
                         op.organization_name,
                         op.profile_picture_url as logo,
                         op.organization_category as category,
-                        op.slug,
                         COALESCE(ec.event_count, 0) as total_events,
-                        COALESCE(
-                            json_agg(
-                                CASE 
-                                    WHEN ue.rn <= 3 THEN json_build_object(
-                                        'title', ue.title,
-                                        'date', ue.event_date,
-                                        'venue', ue.venue,
-                                        'address', ue.address,
-                                        'slug', ue.event_slug,
-                                        'feature_image', ue.feature_image_url
-                                    )
-                                    ELSE NULL 
-                                END
-                            ) FILTER (WHERE ue.rn <= 3),
-                            '[]'::json
+                        STRING_AGG(
+                            CASE 
+                                WHEN ue.rn <= 3 THEN ue.title 
+                                ELSE NULL 
+                            END,
+                            '|'
+                            ORDER BY ue.event_date ASC
                         ) as upcoming_events
                     FROM 
                         users u
@@ -950,7 +937,6 @@ class PublicOrganizersListView(APIView):
                         op.organization_name, 
                         op.profile_picture_url, 
                         op.organization_category,
-                        op.slug,
                         ec.event_count
                     ORDER BY 
                         COALESCE(ec.event_count, 0) DESC, 
@@ -970,8 +956,8 @@ class PublicOrganizersListView(APIView):
                     upcoming_events = []
                     if org['upcoming_events']:
                         upcoming_events = [
-                            event for event in org['upcoming_events']
-                            if event is not None
+                            event for event in org['upcoming_events'].split('|')
+                            if event
                         ][:3]  # Take only first 3 unique upcoming events
 
                     formatted_org = {
@@ -979,7 +965,6 @@ class PublicOrganizersListView(APIView):
                         'organization_name': org['organization_name'],
                         'logo': org['logo'] or '',
                         'category': org['category'] or '',
-                        'slug': org['slug'] or '',
                         'total_events': org['total_events'],
                         'upcoming_events': upcoming_events
                     }
@@ -1019,7 +1004,7 @@ class OrganizerDetailView(APIView):
                             e.venue,
                             e.address,
                             e.slug as event_slug,
-                            e.feature_image as feature_image_url,
+                            e.image_url as feature_image_url,
                             ROW_NUMBER() OVER (
                                 PARTITION BY e.organizer_id 
                                 ORDER BY e.event_date ASC
@@ -1042,22 +1027,19 @@ class OrganizerDetailView(APIView):
                         op.profile_picture_url as logo,
                         op.slug,
                         COALESCE(ec.event_count, 0) as total_events,
-                        COALESCE(
-                            json_agg(
-                                CASE 
-                                    WHEN ue.rn <= 3 THEN json_build_object(
-                                        'title', ue.title,
-                                        'date', ue.event_date,
-                                        'venue', ue.venue,
-                                        'address', ue.address,
-                                        'slug', ue.event_slug,
-                                        'feature_image', ue.feature_image_url
-                                    )
-                                    ELSE NULL 
-                                END
-                            ) FILTER (WHERE ue.rn <= 3),
-                            '[]'::json
-                        ) as upcoming_events
+                        json_agg(
+                            CASE 
+                                WHEN ue.rn <= 3 THEN json_build_object(
+                                    'title', ue.title,
+                                    'date', ue.event_date,
+                                    'venue', ue.venue,
+                                    'address', ue.address,
+                                    'slug', ue.event_slug,
+                                    'feature_image', ue.feature_image_url
+                                )
+                                ELSE NULL 
+                            END
+                        ) FILTER (WHERE ue.rn <= 3) as upcoming_events
                     FROM 
                         users u
                     JOIN 
