@@ -928,10 +928,9 @@ class PublicOrganizersListView(APIView):
                                     'date', ue.event_date,
                                     'venue', ue.venue,
                                     'address', ue.address,
-                                    'slug', ue.event_slug,
+                                    'slug', ue.event_slug
                                 )
                                 ELSE NULL 
-                           
                             END
                         ) FILTER (WHERE ue.rn <= 3) as upcoming_events
                     FROM 
@@ -967,7 +966,6 @@ class PublicOrganizersListView(APIView):
                     upcoming_events = []
                     if org['upcoming_events']:
                         upcoming_events = [
-                            
                             event for event in org['upcoming_events']
                             if event is not None
                         ][:3]  # Take only first 3 unique upcoming events
@@ -1016,6 +1014,7 @@ class OrganizerDetailView(APIView):
                             e.event_date,
                             e.venue,
                             e.address,
+                            e.slug as event_slug,
                             ROW_NUMBER() OVER (
                                 PARTITION BY e.organizer_id 
                                 ORDER BY e.event_date ASC
@@ -1044,7 +1043,8 @@ class OrganizerDetailView(APIView):
                                     'title', ue.title,
                                     'date', ue.event_date,
                                     'venue', ue.venue,
-                                    'address', ue.address
+                                    'address', ue.address,
+                                    'slug', ue.event_slug
                                 )
                                 ELSE NULL 
                             END
