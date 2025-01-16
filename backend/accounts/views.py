@@ -903,7 +903,6 @@ class PublicOrganizersListView(APIView):
                             e.venue,
                             e.address,
                             e.slug as event_slug,
-                            e.feature_image_url,
                             ROW_NUMBER() OVER (
                                 PARTITION BY e.organizer_id 
                                 ORDER BY e.event_date ASC
@@ -930,7 +929,6 @@ class PublicOrganizersListView(APIView):
                                     'venue', ue.venue,
                                     'address', ue.address,
                                     'slug', ue.event_slug,
-                                    'feature_image', ue.feature_image_url
                                 )
                                 ELSE NULL 
                            
