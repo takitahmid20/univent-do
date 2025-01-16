@@ -198,38 +198,27 @@ const OrganizerDetailsPage = () => {
             {/* Events Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {(activeTab === 'upcoming' ? (organizer.upcoming_events || []).filter(Boolean) : []).map((event, index) => (
-                <Link href={`/events/${event.slug}`} key={index}>
-                  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
-                    <div className="relative h-48">
-                      <img
-                        src={event.feature_image || '/event-placeholder.jpg'}
-                        alt={event.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute top-4 right-4 bg-white/90 px-3 py-1 rounded-full text-sm font-medium text-[#f6405f]">
-                        Upcoming
+                <Link 
+                  href={`/events/${event.title.toLowerCase().replace(/\s+/g, '-')}`} 
+                  key={index}
+                >
+                  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{event.title}</h3>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <FaCalendarAlt className="text-[#f6405f]" />
+                        <span>{new Date(event.date).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}</span>
                       </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-[#f6405f] transition-colors line-clamp-2">
-                        {event.title}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <FaCalendarAlt className="text-[#f6405f]" />
-                          <span>{new Date(event.date).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}</span>
+                      {event.venue && (
+                        <div className="flex items-center gap-2">
+                          <FaMapMarkerAlt className="text-[#f6405f]" />
+                          <span>{event.venue}</span>
                         </div>
-                        {event.venue && (
-                          <div className="flex items-center gap-1">
-                            <FaMapMarkerAlt className="text-[#f6405f]" />
-                            <span className="line-clamp-1">{event.venue}</span>
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
                 </Link>
