@@ -1003,11 +1003,8 @@ class OrganizerDetailView(APIView):
                             e.event_date,
                             e.venue,
                             e.address,
-<<<<<<< HEAD
                             e.slug as event_slug,
-                            e.image_url as feature_image_url,
-=======
->>>>>>> parent of 2a62d01 (passing event slug to organizer details page)
+                            e.feature_image_url,
                             ROW_NUMBER() OVER (
                                 PARTITION BY e.organizer_id 
                                 ORDER BY e.event_date ASC
