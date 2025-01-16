@@ -549,7 +549,7 @@ def register_for_event(event_id, user_id, registration_data):
                 box_size=10,
                 border=4,
             )
-            qr_data = f"Registration ID: {registration_id}\nEvent: {title}\nAttendee: {username}"
+            qr_data = f"{registration_id}"
             qr.add_data(qr_data)
             qr.make(fit=True)
             
