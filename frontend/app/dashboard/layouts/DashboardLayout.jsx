@@ -28,16 +28,27 @@ const navigationLinks = {
       links: [
         { name: 'Dashboard', href: '/dashboard/attendee', icon: FaChartBar },
         { name: 'My Tickets', href: '/dashboard/attendee/tickets', icon: FaTicketAlt },
-        { name: 'Upcoming Events', href: '/dashboard/attendee/upcoming', icon: FaCalendarAlt },
-        { name: 'Event Groups', href: '/dashboard/attendee/groups', icon: FaUsers },
+        // { name: 'Upcoming Events', href: '/dashboard/attendee/upcoming', icon: FaCalendarAlt },
+        // { name: 'Event Groups', href: '/dashboard/attendee/groups', icon: FaUsers },
       ]
     },
     {
       title: 'Account',
       links: [
-        { name: 'Profile', href: '/dashboard/attendee/profile', icon: FaUser },
-        { name: 'Messages', href: '/dashboard/attendee/messages', icon: FaComments },
+        // { name: 'Profile', href: '/dashboard/attendee/profile', icon: FaUser },
+        // { name: 'Messages', href: '/dashboard/attendee/messages', icon: FaComments },
         { name: 'Settings', href: '/dashboard/attendee/settings', icon: FaCog },
+        { 
+          name: 'Sign Out', 
+          href: '#', 
+          icon: FaSignOutAlt,
+          onClick: (router) => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            Cookies.remove('token');
+            router.replace('/signin');
+          }
+        },
       ]
     }
   ],
@@ -47,16 +58,27 @@ const navigationLinks = {
       links: [
         { name: 'Dashboard', href: '/dashboard/attendee', icon: FaChartBar },
         { name: 'My Tickets', href: '/dashboard/attendee/tickets', icon: FaTicketAlt },
-        { name: 'Upcoming Events', href: '/dashboard/attendee/upcoming', icon: FaCalendarAlt },
-        { name: 'Event Groups', href: '/dashboard/attendee/groups', icon: FaUsers },
+        // { name: 'Upcoming Events', href: '/dashboard/attendee/upcoming', icon: FaCalendarAlt },
+        // { name: 'Event Groups', href: '/dashboard/attendee/groups', icon: FaUsers },
       ]
     },
     {
       title: 'Account',
       links: [
-        { name: 'Profile', href: '/dashboard/attendee/profile', icon: FaUser },
-        { name: 'Messages', href: '/dashboard/attendee/messages', icon: FaComments },
+        // { name: 'Profile', href: '/dashboard/attendee/profile', icon: FaUser },
+        // { name: 'Messages', href: '/dashboard/attendee/messages', icon: FaComments },
         { name: 'Settings', href: '/dashboard/attendee/settings', icon: FaCog },
+        { 
+          name: 'Sign Out', 
+          href: '#', 
+          icon: FaSignOutAlt,
+          onClick: (router) => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            Cookies.remove('token');
+            router.replace('/signin');
+          }
+        },
       ]
     }
   ],
@@ -72,8 +94,19 @@ const navigationLinks = {
     {
       title: 'Management',
       links: [
-        { name: 'Messages', href: '/dashboard/organizer/messages', icon: FaComments },
+        // { name: 'Messages', href: '/dashboard/organizer/messages', icon: FaComments },
         { name: 'Settings', href: '/dashboard/organizer/settings', icon: FaCog },
+        { 
+          name: 'Sign Out', 
+          href: '#', 
+          icon: FaSignOutAlt,
+          onClick: (router) => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            Cookies.remove('token');
+            router.replace('/signin');
+          }
+        },
       ]
     }
   ],
@@ -91,6 +124,17 @@ const navigationLinks = {
       title: 'Management',
       links: [
         { name: 'Settings', href: '/dashboard/admin/settings', icon: FaCog },
+        { 
+          name: 'Sign Out', 
+          href: '#', 
+          icon: FaSignOutAlt,
+          onClick: (router) => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            Cookies.remove('token');
+            router.replace('/signin');
+          }
+        },
       ]
     }
   ]
@@ -174,17 +218,27 @@ const DashboardLayout = ({ children, userRole = 'user' }) => {
                     const isActive = pathname === link.href;
                     return (
                       <li key={link.name}>
-                        <Link
-                          href={link.href}
-                          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                            isActive 
-                              ? 'bg-gray-50 text-[#f6405f]' 
-                              : 'text-gray-600 hover:bg-gray-50'
-                          }`}
-                        >
-                          <Icon className="w-5 h-5" />
-                          <span>{link.name}</span>
-                        </Link>
+                        {link.onClick ? (
+                          <button
+                            onClick={() => link.onClick(router)}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-red-500 hover:text-red-600 hover:bg-red-50"
+                          >
+                            <Icon className="w-5 h-5" />
+                            <span>{link.name}</span>
+                          </button>
+                        ) : (
+                          <Link
+                            href={link.href}
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                              isActive 
+                                ? 'bg-gray-50 text-[#f6405f]' 
+                                : 'text-gray-600 hover:bg-gray-50'
+                            }`}
+                          >
+                            <Icon className="w-5 h-5" />
+                            <span>{link.name}</span>
+                          </Link>
+                        )}
                       </li>
                     );
                   })}
@@ -192,22 +246,6 @@ const DashboardLayout = ({ children, userRole = 'user' }) => {
               </div>
             ))}
           </nav>
-
-          {/* Sign Out Button - Fixed at bottom */}
-          <div className="p-4 border-t mt-auto">
-            <button 
-              onClick={() => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                Cookies.remove('token');
-                router.replace('/signin');
-              }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-            >
-              <FaSignOutAlt className="w-5 h-5" />
-              <span>Sign Out</span>
-            </button>
-          </div>
         </div>
       </aside>
 
