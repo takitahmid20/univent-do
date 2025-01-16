@@ -18,6 +18,44 @@ const ORGANIZATION_CATEGORIES = [
   'Other'
 ];
 
+// Helper function to format URL
+const formatUrl = (url) => {
+  if (!url) return '';
+  
+  // Remove any leading/trailing whitespace
+  url = url.trim();
+  
+  // If it already has a protocol, return as is
+  if (url.match(/^https?:\/\//i)) return url;
+  
+  // Add https:// to the URL
+  return `https://${url}`;
+};
+
+// Helper function to validate URL format
+const isValidUrl = (url) => {
+  if (!url) return false;
+  
+  // Add https:// if no protocol is present
+  const urlToTest = url.match(/^https?:\/\//i) ? url : `https://${url}`;
+  
+  try {
+    new URL(urlToTest);
+    return true;
+  } catch (err) {
+    // Try adding www. if the URL fails
+    try {
+      if (!urlToTest.includes('www.')) {
+        new URL(urlToTest.replace('https://', 'https://www.'));
+        return true;
+      }
+    } catch (err) {
+      return false;
+    }
+    return false;
+  }
+};
+
 // Validation schema
 const validationSchema = Yup.object({
   organizationName: Yup.string()
@@ -27,11 +65,19 @@ const validationSchema = Yup.object({
     .required('Phone number is required')
     .matches(/^\+?[\d\s-]{10,}$/, 'Invalid phone number format'),
   websiteUrl: Yup.string()
-    .url('Invalid website URL')
-    .required('Website URL is required'),
+    .required('Website URL is required')
+    .test('is-valid-url', 'Please enter a valid URL', function(value) {
+      if (!value) return false;
+      return isValidUrl(value);
+    })
+    .transform(formatUrl),
   facebookUrl: Yup.string()
-    .url('Invalid Facebook URL')
-    .nullable(),
+    .nullable()
+    .test('is-valid-url', 'Please enter a valid URL', function(value) {
+      if (!value) return true; // Allow empty value
+      return isValidUrl(value);
+    })
+    .transform(value => value ? formatUrl(value) : ''),
   organizationCategory: Yup.string()
     .required('Organization category is required')
     .oneOf(ORGANIZATION_CATEGORIES, 'Invalid organization category'),
@@ -189,7 +235,14 @@ export default function SettingsPage() {
     setMessage({ type: '', text: '' });
     
     try {
-      await validationSchema.validate(formData, { abortEarly: false });
+      // Format URLs before validation
+      const dataToValidate = {
+        ...formData,
+        websiteUrl: formatUrl(formData.websiteUrl),
+        facebookUrl: formData.facebookUrl ? formatUrl(formData.facebookUrl) : ''
+      };
+
+      await validationSchema.validate(dataToValidate, { abortEarly: false });
       
       const token = localStorage.getItem('token');
       if (!token) {
@@ -198,13 +251,13 @@ export default function SettingsPage() {
 
       // Create FormData to handle file upload
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
+      Object.keys(dataToValidate).forEach(key => {
         if (key === 'profilePicture') {
-          if (formData[key] instanceof File) {
-            formDataToSend.append('profilePicture', formData[key]);
+          if (dataToValidate[key] instanceof File) {
+            formDataToSend.append('profilePicture', dataToValidate[key]);
           }
         } else {
-          formDataToSend.append(key, formData[key] || '');
+          formDataToSend.append(key, dataToValidate[key] || '');
         }
       });
 
@@ -267,7 +320,7 @@ export default function SettingsPage() {
   };
 
   const handleCopyUrl = async () => {
-    const url = `http://localhost:3000/organizers/${formData.slug}`;
+    const url = `https://univent-frontend.vercel.app/organizers/${formData.slug}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopySuccess(true);
@@ -343,7 +396,7 @@ export default function SettingsPage() {
               Profile URL
             </label>
             <div className="flex items-center space-x-2">
-              <span className="text-gray-500">localhost:3000/organizers/</span>
+              <span className="text-gray-500">https://univent-frontend.vercel.app/organizers/</span>
               <input
                 type="text"
                 name="slug"
@@ -421,7 +474,7 @@ export default function SettingsPage() {
             <div className="relative">
               <FaGlobe className="absolute left-3 top-3 text-gray-400" />
               <input
-                type="url"
+                type="text"
                 value={formData.websiteUrl}
                 onChange={(e) => handleChange('websiteUrl', e.target.value)}
                 className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f6405f] ${
@@ -443,7 +496,7 @@ export default function SettingsPage() {
             <div className="relative">
               <FaFacebook className="absolute left-3 top-3 text-gray-400" />
               <input
-                type="url"
+                type="text"
                 value={formData.facebookUrl}
                 onChange={(e) => handleChange('facebookUrl', e.target.value)}
                 className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f6405f] ${
