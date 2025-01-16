@@ -12,7 +12,7 @@ const FeaturedOrganizers = () => {
   useEffect(() => {
     const fetchOrganizers = async () => {
       try {
-        const response = await axios.get('http://localhost:5656/api/accounts/organizers/');
+        const response = await axios.get('https://univent-backend.onrender.com/api/accounts/organizers/');
         if (response.data.status === 'success') {
           setOrganizers(response.data.data);
         } else {
@@ -83,9 +83,9 @@ const FeaturedOrganizers = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {organizers.map((organizer) => (
           <Link 
-          href={`/organizers/${(organizer.organization_name || 'unnamed-organizer').toLowerCase().replace(/\s+/g, '-')}`}
-          key={organizer.id}
-        >
+            href={`/organizers/${organizer.slug}`}
+            key={organizer.id}
+          >
             <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group p-6">
               {/* Profile Section */}
               <div className="flex items-start gap-4">
