@@ -15,7 +15,7 @@ const OrganizerDetailsPage = () => {
   useEffect(() => {
     const fetchOrganizerDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:5656/api/accounts/organizers/${params.slug}/`);
+        const response = await axios.get(`https://univent-backend.onrender.com/api/accounts/organizers/${params.slug}/`);
         if (response.data.status === 'success') {
           setOrganizer(response.data.data);
         } else {
@@ -69,20 +69,20 @@ const OrganizerDetailsPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="relative h-[400px] bg-gradient-to-r from-[#f6405f] to-[#ff8144]">
+      <div className="relative h-[300px] md:h-[400px] bg-gradient-to-r from-[#f6405f] to-[#ff8144]">
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="absolute inset-0 max-w-7xl mx-auto px-4 flex items-center">
-          <div className="flex items-center gap-8">
-            <div className="w-40 h-40 rounded-2xl overflow-hidden border-4 border-white shadow-lg">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8 w-full">
+            <div className="w-28 h-28 md:w-40 md:h-40 rounded-2xl overflow-hidden border-4 border-white shadow-lg flex-shrink-0">
               <img
                 src={organizer.logo || '/default-organizer-logo.png'}
                 alt={organizer.organization_name}
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="text-white">
-              <h1 className="text-4xl font-bold mb-4">{organizer.organization_name}</h1>
-              <div className="flex items-center gap-6 text-sm">
+            <div className="text-white text-center md:text-left">
+              <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">{organizer.organization_name}</h1>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 md:gap-6 text-sm">
                 <span className="bg-white/20 px-3 py-1 rounded-full">
                   {organizer.category}
                 </span>
@@ -197,33 +197,28 @@ const OrganizerDetailsPage = () => {
 
             {/* Events Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {(activeTab === 'upcoming' ? organizer.upcoming_events : []).map((event, index) => (
-                <Link href={`/events/${event.toLowerCase().replace(/\s+/g, '-')}`} key={index}>
-                  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
-                    <div className="relative h-48">
-                      <img
-                        src="/event-placeholder.jpg"
-                        alt={event}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute top-4 right-4 bg-white/90 px-3 py-1 rounded-full text-sm font-medium text-[#f6405f]">
-                        Upcoming
+              {(activeTab === 'upcoming' ? (organizer.upcoming_events || []).filter(Boolean) : []).map((event, index) => (
+                <Link 
+                  href={`/events/${event.title.toLowerCase().replace(/\s+/g, '-')}`} 
+                  key={index}
+                >
+                  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{event.title}</h3>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <FaCalendarAlt className="text-[#f6405f]" />
+                        <span>{new Date(event.date).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}</span>
                       </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-[#f6405f] transition-colors">
-                        {event}
-                      </h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <FaCalendarAlt />
-                          <span>Coming Soon</span>
+                      {event.venue && (
+                        <div className="flex items-center gap-2">
+                          <FaMapMarkerAlt className="text-[#f6405f]" />
+                          <span>{event.venue}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <FaMapMarkerAlt />
-                          <span>TBA</span>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </Link>
