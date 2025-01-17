@@ -14,6 +14,7 @@ import {
   FaSignOutAlt,
   FaDownload
 } from 'react-icons/fa';
+import Link from 'next/link';
 
 export default function OrganizerDashboard() {
   const router = useRouter();
@@ -152,7 +153,12 @@ export default function OrganizerDashboard() {
           {dashboardData?.upcoming_events?.map((event) => (
             <div key={event.id} className="bg-white border rounded-xl overflow-hidden">
               <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2">{event.title}</h3>
+                <Link 
+                  href={`/events/${event.slug}`}
+                  className="hover:text-[#f6405f] transition-colors"
+                >
+                  <h3 className="font-semibold text-lg mb-2">{event.title}</h3>
+                </Link>
                 <div className="space-y-2 text-sm text-gray-500">
                   <div className="flex items-center">
                     <FaClock className="mr-2 flex-shrink-0" />
