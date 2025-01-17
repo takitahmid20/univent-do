@@ -1123,7 +1123,7 @@ class OrganizerDetailView(APIView):
                             e.event_date,
                             e.venue,
                             e.address,
-                            e.slug,
+                            e.image_url,
                             e.slug as event_slug,
                             ROW_NUMBER() OVER (
                                 PARTITION BY e.organizer_id 
