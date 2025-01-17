@@ -175,6 +175,143 @@ class OrganizerEventsView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+# class UpdateEventView(APIView):
+#     @token_required
+#     def put(self, request, event_id):
+#         try:
+#             print(f"Updating event with ID: {event_id}")
+#             print(f"Request data: {request.data}")
+            
+#             # Get user info from token
+#             token = request.META.get('HTTP_AUTHORIZATION', '').split(' ')[1]
+#             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+#             user_id = payload.get('user_id')
+#             user_type = payload.get('user_type')
+#             print(f"User ID from token: {user_id}")
+#             print(f"User type from token: {user_type}")
+
+#             # Check if user is an organizer
+#             if user_type != 'organizer':
+#                 print("User is not an organizer")
+#                 return Response({
+#                     'error': 'Only organizers can update events'
+#                 }, status=status.HTTP_403_FORBIDDEN)
+
+#             # First check if event exists and user is the organizer
+#             with connection.cursor() as cursor:
+#                 cursor.execute(
+#                     "SELECT organizer_id FROM events WHERE id = %s",
+#                     [event_id]
+#                 )
+#                 result = cursor.fetchone()
+#                 if not result:
+#                     print("Event not found")
+#                     return Response({
+#                         'error': 'Event not found'
+#                     }, status=status.HTTP_404_NOT_FOUND)
+                
+#                 if str(result[0]) != str(user_id):
+#                     print(f"User {user_id} is not the organizer of event {event_id}")
+#                     return Response({
+#                         'error': 'You are not authorized to update this event'
+#                     }, status=status.HTTP_403_FORBIDDEN)
+
+#             # Get event data
+#             event_data = {}
+#             for field in ['title', 'description', 'category', 'event_date', 'event_time', 
+#                          'venue', 'address', 'ticket_price', 'max_attendees', 'publication_status']:
+#                 if field in request.data:
+#                     event_data[field] = request.data[field]
+            
+#             print(f"Processed event data: {event_data}")
+
+#             # Handle image upload if present (check both 'image' and 'image_url' fields)
+#             image_file = request.FILES.get('image') or request.FILES.get('image_url')
+#             if image_file:
+#                 try:
+#                     print(f"Processing image: {image_file.name}, size: {image_file.size}")
+                    
+#                     # Generate unique filename
+#                     ext = image_file.name.split('.')[-1].lower()
+#                     if ext not in ['jpg', 'jpeg', 'png', 'gif']:
+#                         return Response({
+#                             'error': 'Invalid image format. Only jpg, jpeg, png, and gif are allowed.'
+#                         }, status=status.HTTP_400_BAD_REQUEST)
+                    
+#                     filename = f"{uuid.uuid4()}.{ext}"
+                    
+#                     # Save file
+#                     filepath = os.path.join(settings.MEDIA_ROOT, 'events', filename)
+#                     os.makedirs(os.path.dirname(filepath), exist_ok=True)
+                    
+#                     with open(filepath, 'wb+') as destination:
+#                         for chunk in image_file.chunks():
+#                             destination.write(chunk)
+                    
+#                     # Set full image URL
+#                     event_data['image_url'] = f"{settings.SITE_URL}/media/events/{filename}"
+#                     print(f"Image saved successfully. URL: {event_data['image_url']}")
+                    
+#                 except Exception as e:
+#                     print(f"Error processing image: {str(e)}")
+#                     return Response({
+#                         'error': f'Error processing image: {str(e)}'
+#                     }, status=status.HTTP_400_BAD_REQUEST)
+
+#             # Convert numeric fields
+#             try:
+#                 if 'ticket_price' in event_data:
+#                     event_data['ticket_price'] = float(event_data['ticket_price'])
+#                 if 'max_attendees' in event_data:
+#                     event_data['max_attendees'] = int(event_data['max_attendees'])
+#                 print(f"Numeric fields converted successfully")
+#             except ValueError as e:
+#                 print(f"Error converting numeric fields: {str(e)}")
+#                 return Response({
+#                     'error': f'Invalid numeric value: {str(e)}'
+#                 }, status=status.HTTP_400_BAD_REQUEST)
+
+#             # Update event
+#             print("Calling update_event...")
+#             success, message = update_event(event_id, user_id, event_data)
+#             print(f"Update result - Success: {success}, Message: {message}")
+            
+#             if not success:
+#                 return Response({
+#                     'error': message
+#                 }, status=status.HTTP_400_BAD_REQUEST)
+
+#             # Get updated event details
+#             print(f"Fetching updated event details with ID: {event_id}")
+#             updated_event = get_event(event_id)
+#             if not updated_event:
+#                 print("Failed to fetch updated event")
+#                 return Response({
+#                     'error': 'Failed to fetch updated event'
+#                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#             print("Event updated successfully")
+#             return Response(updated_event, status=status.HTTP_200_OK)
+
+#         except jwt.ExpiredSignatureError:
+#             print("Token expired")
+#             return Response({
+#                 'error': 'Token has expired'
+#             }, status=status.HTTP_401_UNAUTHORIZED)
+#         except jwt.InvalidTokenError:
+#             print("Invalid token")
+#             return Response({
+#                 'error': 'Invalid token'
+#             }, status=status.HTTP_401_UNAUTHORIZED)
+#         except Exception as e:
+#             print(f"Unexpected error in UpdateEventView: {str(e)}")
+#             print(f"Error type: {type(e)}")
+#             import traceback
+#             print(f"Traceback: {traceback.format_exc()}")
+#             return Response({
+#                 'error': f'Failed to update event: {str(e)}'
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class UpdateEventView(APIView):
     @token_required
     def put(self, request, event_id):
@@ -219,99 +356,33 @@ class UpdateEventView(APIView):
             # Get event data
             event_data = {}
             for field in ['title', 'description', 'category', 'event_date', 'event_time', 
-                         'venue', 'address', 'ticket_price', 'max_attendees', 'publication_status']:
+                         'venue', 'address', 'ticket_price', 'max_attendees', 'publication_status', 'image_url']:
                 if field in request.data:
                     event_data[field] = request.data[field]
             
             print(f"Processed event data: {event_data}")
 
-            # Handle image upload if present (check both 'image' and 'image_url' fields)
-            image_file = request.FILES.get('image') or request.FILES.get('image_url')
-            if image_file:
-                try:
-                    print(f"Processing image: {image_file.name}, size: {image_file.size}")
-                    
-                    # Generate unique filename
-                    ext = image_file.name.split('.')[-1].lower()
-                    if ext not in ['jpg', 'jpeg', 'png', 'gif']:
-                        return Response({
-                            'error': 'Invalid image format. Only jpg, jpeg, png, and gif are allowed.'
-                        }, status=status.HTTP_400_BAD_REQUEST)
-                    
-                    filename = f"{uuid.uuid4()}.{ext}"
-                    
-                    # Save file
-                    filepath = os.path.join(settings.MEDIA_ROOT, 'events', filename)
-                    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-                    
-                    with open(filepath, 'wb+') as destination:
-                        for chunk in image_file.chunks():
-                            destination.write(chunk)
-                    
-                    # Set full image URL
-                    event_data['image_url'] = f"{settings.SITE_URL}/media/events/{filename}"
-                    print(f"Image saved successfully. URL: {event_data['image_url']}")
-                    
-                except Exception as e:
-                    print(f"Error processing image: {str(e)}")
-                    return Response({
-                        'error': f'Error processing image: {str(e)}'
-                    }, status=status.HTTP_400_BAD_REQUEST)
-
-            # Convert numeric fields
-            try:
-                if 'ticket_price' in event_data:
-                    event_data['ticket_price'] = float(event_data['ticket_price'])
-                if 'max_attendees' in event_data:
-                    event_data['max_attendees'] = int(event_data['max_attendees'])
-                print(f"Numeric fields converted successfully")
-            except ValueError as e:
-                print(f"Error converting numeric fields: {str(e)}")
-                return Response({
-                    'error': f'Invalid numeric value: {str(e)}'
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            # Update event
-            print("Calling update_event...")
+            # Update the event
             success, message = update_event(event_id, user_id, event_data)
-            print(f"Update result - Success: {success}, Message: {message}")
-            
             if not success:
                 return Response({
                     'error': message
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Get updated event details
-            print(f"Fetching updated event details with ID: {event_id}")
+            # Get updated event data
             updated_event = get_event(event_id)
             if not updated_event:
-                print("Failed to fetch updated event")
                 return Response({
-                    'error': 'Failed to fetch updated event'
+                    'error': 'Failed to retrieve updated event'
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            print("Event updated successfully")
             return Response(updated_event, status=status.HTTP_200_OK)
 
-        except jwt.ExpiredSignatureError:
-            print("Token expired")
-            return Response({
-                'error': 'Token has expired'
-            }, status=status.HTTP_401_UNAUTHORIZED)
-        except jwt.InvalidTokenError:
-            print("Invalid token")
-            return Response({
-                'error': 'Invalid token'
-            }, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
-            print(f"Unexpected error in UpdateEventView: {str(e)}")
-            print(f"Error type: {type(e)}")
-            import traceback
-            print(f"Traceback: {traceback.format_exc()}")
+            print(f"Error updating event: {str(e)}")
             return Response({
                 'error': f'Failed to update event: {str(e)}'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class DeleteEventView(APIView):
     @token_required
