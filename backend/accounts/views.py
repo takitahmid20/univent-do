@@ -587,6 +587,64 @@ class AttendeeProfileView(APIView):
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class OrganizerProfileView(APIView):
+
+    @token_required
+    def get(self, request):
+        try:
+            user_id = request.user['user_id']
+            user_type = request.user['user_type']
+
+            if user_type != 'organizer':
+                return Response({
+                    "error": "Access denied. This endpoint is for organizers only."
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT u.id, u.email, u.username, u.user_type,
+                           p.organization_name, p.phone, p.website_url,
+                           p.facebook_url, p.organization_category,
+                           p.description, p.profile_picture_url, p.joined_date,
+                           p.slug
+                    FROM users u
+                    JOIN organizer_profiles p ON u.id = p.user_id
+                    WHERE u.id = %s
+                """, [user_id])
+                
+                user = cursor.fetchone()
+                
+                if not user:
+                    return Response({
+                        "error": "Profile not found"
+                    }, status=status.HTTP_404_NOT_FOUND)
+
+                # Convert None values to empty strings for frontend
+                profile_data = {
+                    "id": str(user[0]),
+                    "email": user[1],
+                    "username": user[2],
+                    "userType": user[3],
+                    "organizationName": user[4] if user[4] else "",
+                    "phone": user[5] if user[5] else "",
+                    "websiteUrl": user[6] if user[6] else "",
+                    "facebookUrl": user[7] if user[7] else "",
+                    "organizationCategory": user[8] if user[8] else "",
+                    "description": user[9] if user[9] else "",
+                    "profilePicture": user[10] if user[10] else "",  # This will now be a Cloudinary URL
+                    "joinedDate": user[11].strftime("%B %Y") if user[11] else "",
+                    "slug": user[12] if user[12] else ""
+                }
+
+                return Response({
+                    "user": profile_data
+                }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print(f"Error fetching profile: {str(e)}")
+            return Response({
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @token_required
     def put(self, request):
         try:
