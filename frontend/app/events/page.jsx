@@ -1,21 +1,22 @@
 "use client";
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { FaMapMarkerAlt, FaCalendarAlt, FaSearch, FaFilter, FaTimes, FaUser } from 'react-icons/fa';
 import axios from 'axios';
 import EventBox from '@/components/EventBox';
 
-const EventsPage = () => {
+// Separate component for the events content
+const EventsContent = () => {
   const searchParams = useSearchParams();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [searchTerm, setSearchTerm] = useState(searchParams?.get('search') || '');
   const [filters, setFilters] = useState({
-    search: searchParams.get('search') || '',
-    category: searchParams.get('category') || '',
+    search: searchParams?.get('search') || '',
+    category: searchParams?.get('category') || '',
     date: '',
     priceRange: ''
   });
@@ -295,15 +296,7 @@ const EventsPage = () => {
 
             {/* Clear Filters */}
             <button
-              onClick={() => {
-                setSearchTerm('');
-                setFilters({
-                  search: '',
-                  category: '',
-                  date: '',
-                  priceRange: ''
-                });
-              }}
+              onClick={resetFilters}
               className="flex items-center justify-center gap-2 text-gray-600 hover:text-[#f6405f] transition-colors"
             >
               <FaTimes />
@@ -330,6 +323,33 @@ const EventsPage = () => {
         </div>
       )}
     </div>
+  );
+};
+
+// Main page component with Suspense
+const EventsPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-4 py-16 mt-16">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="h-48 bg-gray-200"></div>
+                <div className="p-4">
+                  <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                  <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    }>
+      <EventsContent />
+    </Suspense>
   );
 };
 
