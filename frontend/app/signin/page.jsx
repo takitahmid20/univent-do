@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 import Link from 'next/link';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
-import { FaGithub } from 'react-icons/fa';
+import { FaGithub, FaHome } from 'react-icons/fa';
 
 const SigninSchema = Yup.object().shape({
   username: Yup.string()
@@ -97,7 +97,13 @@ export default function SigninPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="absolute top-4 left-4">
+        <Link href="/" className="flex items-center gap-2 text-gray-600 hover:text-[#f6405f] transition-colors">
+          <FaHome className="text-xl" />
+          <span>Home</span>
+        </Link>
+      </div>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Sign in to your account
