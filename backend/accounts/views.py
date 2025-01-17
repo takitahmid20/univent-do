@@ -14,6 +14,9 @@ import random
 from supabase import create_client
 from .middleware import token_required
 
+import cloudinary
+import cloudinary.uploader
+
 # Initialize Supabase client
 try:
     supabase = create_client(
