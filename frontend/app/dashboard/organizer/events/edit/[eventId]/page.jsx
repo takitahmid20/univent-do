@@ -119,17 +119,15 @@ function EditEventPage({ eventId }) {
           ticketPrice: event.ticket_price ? event.ticket_price.toString() : '0',
           maxAttendees: event.max_attendees ? event.max_attendees.toString() : '',
           image: null,
+          currentImageUrl: event.image_url || '',  // Store current image URL
           publication_status: event.publication_status || 'draft'
         });
 
         // Set image preview if exists (check both banner_image and image_url)
         const imageUrl = event.banner_image || event.image_url;
-        if (imageUrl) {
-          // Convert the image URL to use our API_BASE_URL
-          const imagePath = imageUrl.split('/media/')[1];
-          const correctedImageUrl = imagePath ? `${API_BASE_URL}/media/${imagePath}` : null;
-          setImagePreview(correctedImageUrl);
-          console.log('Setting image preview:', correctedImageUrl);
+        if (event.image_url) {
+          setImagePreview(event.image_url);  // Use Cloudinary URL directly
+          console.log('Setting image preview:', event.image_url);
         }
 
         setIsLoading(false);
@@ -182,49 +180,64 @@ function EditEventPage({ eventId }) {
         return;
       }
 
-      // Create FormData object
-      const formData = new FormData();
-      
-      // Add all event data to FormData
-      formData.append('title', eventData.title);
-      formData.append('description', eventData.description);
-      formData.append('category', eventData.category);
-      formData.append('event_date', eventData.date);
-      formData.append('event_time', eventData.time);
-      formData.append('venue', eventData.location);
-      formData.append('address', eventData.address);
-      formData.append('ticket_price', eventData.ticketPrice);
-      formData.append('max_attendees', eventData.maxAttendees);
-      formData.append('publication_status', eventData.publication_status);
-
-      // Only append image if a new one is selected
+      // First upload new image if exists
+      let imageUrl = eventData.currentImageUrl; // Use existing image URL by default
       if (eventData.image instanceof File) {
-        formData.append('image_url', eventData.image);  // Keep using image_url as field name
-        console.log('Uploading new image:', eventData.image.name);
+        const formData = new FormData();
+        formData.append('file', eventData.image);
+
+        try {
+          console.log('Uploading new image to Cloudinary...');
+          const imageResponse = await fetch(API_ENDPOINTS.UPLOAD_IMAGE, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          });
+
+          if (!imageResponse.ok) {
+            const errorData = await imageResponse.json();
+            throw new Error(errorData.error || 'Failed to upload image');
+          }
+
+          const imageData = await imageResponse.json();
+          imageUrl = imageData.image_url;  // Get new Cloudinary URL
+          console.log('New image uploaded successfully:', imageUrl);
+        } catch (error) {
+          console.error('Image upload error:', error);
+          throw new Error('Failed to upload image: ' + error.message);
+        }
       }
+
+      // Prepare event update data
+      const eventPayload = {
+        title: eventData.title,
+        description: eventData.description,
+        category: eventData.category,
+        event_date: eventData.date,
+        event_time: eventData.time,
+        venue: eventData.location,
+        address: eventData.address,
+        ticket_price: parseFloat(eventData.ticketPrice),
+        max_attendees: parseInt(eventData.maxAttendees),
+        image_url: imageUrl,  // Use new or existing Cloudinary URL
+        publication_status: eventData.publication_status
+      };
 
       // Send update request
       const response = await fetch(API_ENDPOINTS.UPDATE_EVENT(eventId), {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        body: formData
+        body: JSON.stringify(eventPayload)
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to update event');
-      }
-
-      const updatedEvent = await response.json();
-      
-      // Update image preview if new image URL is returned
-      if (updatedEvent.image_url) {
-        const imagePath = updatedEvent.image_url.split('/media/')[1];
-        const correctedImageUrl = imagePath ? `${API_BASE_URL}/media/${imagePath}` : null;
-        setImagePreview(correctedImageUrl);
-        console.log('Updated image preview:', correctedImageUrl);
       }
 
       router.push('/dashboard/organizer/events');

@@ -209,21 +209,28 @@ export default function CreateEventPage() {
         const formData = new FormData();
         formData.append('file', eventData.image);
 
-        const imageResponse = await fetch(API_ENDPOINTS.UPLOAD_IMAGE, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        });
+        try {
+          const imageResponse = await fetch(API_ENDPOINTS.UPLOAD_IMAGE, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          });
 
-        if (!imageResponse.ok) {
-          const errorData = await imageResponse.json();
-          throw new Error(errorData.error || 'Failed to upload image');
+          if (!imageResponse.ok) {
+            const errorData = await imageResponse.json();
+            throw new Error(errorData.error || 'Failed to upload image');
+          }
+
+          const imageData = await imageResponse.json();
+          // Use the Cloudinary URL directly
+          imageUrl = imageData.image_url;
+          console.log('Cloudinary Image URL:', imageUrl);
+        } catch (error) {
+          console.error('Image upload error:', error);
+          throw new Error('Failed to upload image: ' + error.message);
         }
-
-        const imageData = await imageResponse.json();
-        imageUrl = imageData.image_url;
       }
 
       // Prepare event data
