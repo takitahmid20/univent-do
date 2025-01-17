@@ -192,129 +192,235 @@ export default function SettingsPage() {
     await validateField(name, value);
   };
 
+  // const handleFileChange = async (e) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+
+  //   // Validate file size (1MB)
+  //   if (file.size > 1024 * 1024) {
+  //     setMessage({ type: 'error', text: 'File size must be less than 1MB' });
+  //     return;
+  //   }
+
+  //   // Validate file type
+  //   if (!['image/jpeg', 'image/png'].includes(file.type)) {
+  //     setMessage({ type: 'error', text: 'Only JPG and PNG files are allowed' });
+  //     return;
+  //   }
+
+  //   // Create image preview
+  //   const reader = new FileReader();
+  //   reader.onloadstart = () => setUploadProgress(0);
+  //   reader.onprogress = (e) => {
+  //     if (e.lengthComputable) {
+  //       const progress = (e.loaded / e.total) * 100;
+  //       setUploadProgress(progress);
+  //     }
+  //   };
+  //   reader.onload = (e) => {
+  //     setImagePreview(e.target.result);
+  //     setUploadProgress(100);
+  //     setFormData(prev => ({ ...prev, profilePicture: file }));
+  //     setTimeout(() => setUploadProgress(0), 1000);
+  //   };
+  //   reader.onerror = () => {
+  //     setMessage({ type: 'error', text: 'Error reading file' });
+  //     setUploadProgress(0);
+  //   };
+  //   reader.readAsDataURL(file);
+  // };
+
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (1MB)
-    if (file.size > 1024 * 1024) {
-      setMessage({ type: 'error', text: 'File size must be less than 1MB' });
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'File size must be less than 5MB' });
       return;
     }
 
     // Validate file type
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-      setMessage({ type: 'error', text: 'Only JPG and PNG files are allowed' });
+    if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+      setMessage({ type: 'error', text: 'Only JPG, PNG and GIF files are allowed' });
       return;
     }
 
-    // Create image preview
-    const reader = new FileReader();
-    reader.onloadstart = () => setUploadProgress(0);
-    reader.onprogress = (e) => {
-      if (e.lengthComputable) {
-        const progress = (e.loaded / e.total) * 100;
-        setUploadProgress(progress);
-      }
-    };
-    reader.onload = (e) => {
-      setImagePreview(e.target.result);
-      setUploadProgress(100);
-      setFormData(prev => ({ ...prev, profilePicture: file }));
-      setTimeout(() => setUploadProgress(0), 1000);
-    };
-    reader.onerror = () => {
-      setMessage({ type: 'error', text: 'Error reading file' });
+    try {
       setUploadProgress(0);
-    };
-    reader.readAsDataURL(file);
+      
+      // Create form data for upload
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Upload to Cloudinary via backend
+      const token = localStorage.getItem('token');
+      const response = await fetch(API_ENDPOINTS.UPLOAD_IMAGE, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData,
+        onUploadProgress: (progressEvent) => {
+          const progress = (progressEvent.loaded / progressEvent.total) * 100;
+          setUploadProgress(progress);
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      console.log('Image uploaded successfully:', data.image_url);
+
+      // Update form data with Cloudinary URL
+      setFormData(prev => ({
+        ...prev,
+        profilePicture: data.image_url
+      }));
+
+      // Show preview
+      setImagePreview(data.image_url);
+      setMessage({ type: 'success', text: 'Image uploaded successfully' });
+      setUploadProgress(100);
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      setMessage({ type: 'error', text: error.message });
+      setUploadProgress(0);
+    }
   };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setMessage({ type: '', text: '' });
+    
+  //   try {
+  //     // Format URLs before validation
+  //     const dataToValidate = {
+  //       ...formData,
+  //       websiteUrl: formatUrl(formData.websiteUrl),
+  //       facebookUrl: formData.facebookUrl ? formatUrl(formData.facebookUrl) : ''
+  //     };
+
+  //     await validationSchema.validate(dataToValidate, { abortEarly: false });
+      
+  //     const token = localStorage.getItem('token');
+  //     if (!token) {
+  //       throw new Error('No token found');
+  //     }
+
+  //     // Create FormData to handle file upload
+  //     const formDataToSend = new FormData();
+  //     Object.keys(dataToValidate).forEach(key => {
+  //       if (key === 'profilePicture') {
+  //         if (dataToValidate[key] instanceof File) {
+  //           formDataToSend.append('profilePicture', dataToValidate[key]);
+  //         }
+  //       } else {
+  //         formDataToSend.append(key, dataToValidate[key] || '');
+  //       }
+  //     });
+
+  //     const response = await fetch(API_ENDPOINTS.UPDATE_ORGANIZER_PROFILE, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //       body: formDataToSend
+  //     });
+
+  //     if (!response.ok) {
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.error || 'Failed to update profile');
+  //     }
+
+  //     const data = await response.json();
+      
+  //     // Update form data with response
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       organizationName: data.user.organizationName || '',
+  //       phone: data.user.phone || '',
+  //       websiteUrl: data.user.websiteUrl || '',
+  //       facebookUrl: data.user.facebookUrl || '',
+  //       organizationCategory: data.user.organizationCategory || '',
+  //       description: data.user.description || '',
+  //       profilePicture: data.user.profilePicture || null,
+  //       slug: data.user.slug || ''
+  //     }));
+
+  //     if (data.user.profilePicture) {
+  //       setImagePreview(data.user.profilePicture);
+  //     }
+
+  //     setMessage({ type: 'success', text: 'Profile updated successfully!' });
+  //     setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+
+  //     // Update local storage
+  //     const userStr = localStorage.getItem('user');
+  //     if (userStr) {
+  //       const user = JSON.parse(userStr);
+  //       localStorage.setItem('user', JSON.stringify({
+  //         ...user,
+  //         organizationName: formData.organizationName
+  //       }));
+  //     }
+  //   } catch (error) {
+  //     if (error instanceof Yup.ValidationError) {
+  //       const validationErrors = {};
+  //       error.inner.forEach(err => {
+  //         validationErrors[err.path] = err.message;
+  //       });
+  //       setErrors(validationErrors);
+  //       setMessage({ type: 'error', text: 'Please fix the errors below' });
+  //     } else {
+  //       setMessage({ type: 'error', text: error.message || 'Error updating profile' });
+  //     }
+  //   }
+  // };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage({ type: '', text: '' });
-    
-    try {
-      // Format URLs before validation
-      const dataToValidate = {
-        ...formData,
-        websiteUrl: formatUrl(formData.websiteUrl),
-        facebookUrl: formData.facebookUrl ? formatUrl(formData.facebookUrl) : ''
-      };
 
-      await validationSchema.validate(dataToValidate, { abortEarly: false });
+    try {
+      // Validate all fields
+      await validationSchema.validate(formData, { abortEarly: false });
       
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No token found');
-      }
-
-      // Create FormData to handle file upload
-      const formDataToSend = new FormData();
-      Object.keys(dataToValidate).forEach(key => {
-        if (key === 'profilePicture') {
-          if (dataToValidate[key] instanceof File) {
-            formDataToSend.append('profilePicture', dataToValidate[key]);
-          }
-        } else {
-          formDataToSend.append(key, dataToValidate[key] || '');
-        }
-      });
-
       const response = await fetch(API_ENDPOINTS.UPDATE_ORGANIZER_PROFILE, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        body: formDataToSend
+        body: JSON.stringify({
+          ...formData,
+          profilePicture: formData.profilePicture // This is now the Cloudinary URL
+        })
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update profile');
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update profile');
       }
 
-      const data = await response.json();
-      
-      // Update form data with response
-      setFormData(prev => ({
-        ...prev,
-        organizationName: data.user.organizationName || '',
-        phone: data.user.phone || '',
-        websiteUrl: data.user.websiteUrl || '',
-        facebookUrl: data.user.facebookUrl || '',
-        organizationCategory: data.user.organizationCategory || '',
-        description: data.user.description || '',
-        profilePicture: data.user.profilePicture || null,
-        slug: data.user.slug || ''
-      }));
+      setMessage({ type: 'success', text: 'Profile updated successfully' });
 
-      if (data.user.profilePicture) {
-        setImagePreview(data.user.profilePicture);
-      }
-
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-
-      // Update local storage
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        localStorage.setItem('user', JSON.stringify({
-          ...user,
-          organizationName: formData.organizationName
-        }));
-      }
     } catch (error) {
-      if (error instanceof Yup.ValidationError) {
+      console.error('Update error:', error);
+      if (error.name === 'ValidationError') {
         const validationErrors = {};
         error.inner.forEach(err => {
           validationErrors[err.path] = err.message;
         });
         setErrors(validationErrors);
-        setMessage({ type: 'error', text: 'Please fix the errors below' });
       } else {
-        setMessage({ type: 'error', text: error.message || 'Error updating profile' });
+        setMessage({ type: 'error', text: error.message });
       }
     }
   };

@@ -114,7 +114,7 @@ const EventDetails = ({ event, API_BASE_URL }) => {
       {/* Hero Section */}
       <div className="relative h-96 rounded-2xl overflow-hidden mb-8">
         <img
-          src={event.imageUrl ? `${API_BASE_URL}${event.imageUrl}` : '/default-event-image.jpg'}
+          src={event.imageUrl?.startsWith('http') ? event.imageUrl : '/default-event-image.jpg'}
           alt={event.title}
           className="w-full h-full object-cover"
           onError={(e) => {
