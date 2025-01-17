@@ -203,40 +203,6 @@ class LoginView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# class LogoutView(APIView):
-#     @token_required
-#     def post(self, request):
-#         try:
-#             token = request.headers.get('Authorization').split(' ')[1]
-            
-#             # Get token payload to get expiration
-#             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-#             exp_timestamp = payload.get('exp')
-            
-#             if not exp_timestamp:
-#                 return Response({
-#                     'error': 'Token is missing expiration'
-#                 }, status=status.HTTP_400_BAD_REQUEST)
-            
-#             exp_datetime = datetime.fromtimestamp(exp_timestamp, timezone.utc)
-            
-#             # Add token to invalid_tokens table
-#             with connection.cursor() as cursor:
-#                 cursor.execute("""
-#                     INSERT INTO invalid_tokens (token, expires_at)
-#                     VALUES (%s, %s)
-#                     ON CONFLICT (token) DO NOTHING
-#                 """, [token, exp_datetime])
-            
-#             return Response({
-#                 'message': 'Successfully logged out'
-#             }, status=status.HTTP_200_OK)
-            
-#         except Exception as e:
-#             return Response({
-#                 'error': str(e)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class AttendeeProfileView(APIView):
     @token_required
@@ -689,7 +655,8 @@ class OrganizerProfileView(APIView):
                         profile_picture_url = CASE 
                             WHEN %s IS NOT NULL THEN %s 
                             ELSE profile_picture_url 
-                        END
+                        END,
+                        slug = COALESCE(%s, slug)
                     WHERE user_id = %s
                     RETURNING organization_name, phone, website_url, facebook_url,
                               organization_category, description, profile_picture_url,
@@ -701,6 +668,7 @@ class OrganizerProfileView(APIView):
                     data.get('facebookUrl', current_profile[3]),
                     data.get('organizationCategory', current_profile[4]),
                     data.get('description', current_profile[5]),
+                    data.get('slug', current_profile[7]),
                     profile_picture_url,  # For CASE WHEN check
                     profile_picture_url,  # For actual value
                     user_id
