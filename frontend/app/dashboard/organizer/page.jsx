@@ -11,7 +11,8 @@ import {
   FaClock,
   FaMapMarkerAlt,
   FaEllipsisH,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaDownload
 } from 'react-icons/fa';
 
 export default function OrganizerDashboard() {
@@ -74,6 +75,17 @@ export default function OrganizerDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mb-6">
+        <a 
+          href="https://expo.dev/accounts/takitahmid/projects/univent-scanner/builds/c51bc9f0-d468-4af1-aa1b-5e6fa5717d29" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="inline-flex items-center gap-2 bg-[#f6405f] text-white px-4 py-2 rounded-lg hover:bg-[#d93350] transition-colors"
+        >
+          <FaDownload className="w-4 h-4" />
+          <span>Install Scanner App</span>
+        </a>
+      </div>
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">

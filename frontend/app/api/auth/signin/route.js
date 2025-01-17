@@ -74,7 +74,7 @@ export async function POST(request) {
 function getDashboardUrl(userType) {
   switch (userType) {
     case 'organizer':
-      return '/dashboard/organizer/settings';
+      return '/dashboard/organizer';
     case 'admin':
       return '/dashboard/admin';
     default:
