@@ -31,7 +31,7 @@ export default async function EventPage({ params: { slug } }) {
   if (!event) return notFound();
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 pt-16 md:pt-20">
       <EventDetails event={event} API_BASE_URL={API_BASE_URL} />
     </main>
   );
