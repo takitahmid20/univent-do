@@ -377,64 +377,216 @@ class AttendeeProfileView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class OrganizerProfileView(APIView):
-    @token_required
-    def get(self, request):
-        try:
-            user_id = request.user['user_id']
-            user_type = request.user['user_type']
+# class OrganizerProfileView(APIView):
+#     @token_required
+#     def get(self, request):
+#         try:
+#             user_id = request.user['user_id']
+#             user_type = request.user['user_type']
 
-            if user_type != 'organizer':
-                return Response({
-                    "error": "Access denied. This endpoint is for organizers only."
-                }, status=status.HTTP_403_FORBIDDEN)
+#             if user_type != 'organizer':
+#                 return Response({
+#                     "error": "Access denied. This endpoint is for organizers only."
+#                 }, status=status.HTTP_403_FORBIDDEN)
             
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT u.id, u.email, u.username, u.user_type,
-                           p.organization_name, p.phone, p.website_url,
-                           p.facebook_url, p.organization_category,
-                           p.description, p.profile_picture_url, p.joined_date,
-                           p.slug
-                    FROM users u
-                    JOIN organizer_profiles p ON u.id = p.user_id
-                    WHERE u.id = %s
-                """, [user_id])
+#             with connection.cursor() as cursor:
+#                 cursor.execute("""
+#                     SELECT u.id, u.email, u.username, u.user_type,
+#                            p.organization_name, p.phone, p.website_url,
+#                            p.facebook_url, p.organization_category,
+#                            p.description, p.profile_picture_url, p.joined_date,
+#                            p.slug
+#                     FROM users u
+#                     JOIN organizer_profiles p ON u.id = p.user_id
+#                     WHERE u.id = %s
+#                 """, [user_id])
                 
-                user = cursor.fetchone()
+#                 user = cursor.fetchone()
                 
-                if not user:
-                    return Response({
-                        "error": "Profile not found"
-                    }, status=status.HTTP_404_NOT_FOUND)
+#                 if not user:
+#                     return Response({
+#                         "error": "Profile not found"
+#                     }, status=status.HTTP_404_NOT_FOUND)
 
-                # Convert None values to empty strings for frontend
-                profile_data = {
-                    "id": str(user[0]),
-                    "email": user[1],
-                    "username": user[2],
-                    "userType": user[3],
-                    "organizationName": user[4] if user[4] else "",
-                    "phone": user[5] if user[5] else "",
-                    "websiteUrl": user[6] if user[6] else "",
-                    "facebookUrl": user[7] if user[7] else "",
-                    "organizationCategory": user[8] if user[8] else "",
-                    "description": user[9] if user[9] else "",
-                    "profilePicture": user[10] if user[10] else "",
-                    "joinedDate": user[11].strftime("%B %Y") if user[11] else "",
-                    "slug": user[12] if user[12] else ""
-                }
+#                 # Convert None values to empty strings for frontend
+#                 profile_data = {
+#                     "id": str(user[0]),
+#                     "email": user[1],
+#                     "username": user[2],
+#                     "userType": user[3],
+#                     "organizationName": user[4] if user[4] else "",
+#                     "phone": user[5] if user[5] else "",
+#                     "websiteUrl": user[6] if user[6] else "",
+#                     "facebookUrl": user[7] if user[7] else "",
+#                     "organizationCategory": user[8] if user[8] else "",
+#                     "description": user[9] if user[9] else "",
+#                     "profilePicture": user[10] if user[10] else "",
+#                     "joinedDate": user[11].strftime("%B %Y") if user[11] else "",
+#                     "slug": user[12] if user[12] else ""
+#                 }
 
-                return Response({
-                    "user": profile_data
-                }, status=status.HTTP_200_OK)
+#                 return Response({
+#                     "user": profile_data
+#                 }, status=status.HTTP_200_OK)
 
-        except Exception as e:
-            print(f"Error fetching profile: {str(e)}")
-            return Response({
-                "error": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         except Exception as e:
+#             print(f"Error fetching profile: {str(e)}")
+#             return Response({
+#                 "error": str(e)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+#     @token_required
+#     def put(self, request):
+#         try:
+#             user_id = request.user['user_id']
+#             user_type = request.user['user_type']
+#             data = request.data
+
+#             if user_type != 'organizer':
+#                 return Response({
+#                     "error": "Access denied. This endpoint is for organizers only."
+#                 }, status=status.HTTP_403_FORBIDDEN)
+            
+#             # Handle profile picture upload
+#             profile_picture_url = None
+#             if 'profilePicture' in request.FILES:
+#                 file = request.FILES['profilePicture']
+                
+#                 # Validate file size (1MB)
+#                 if file.size > 1024 * 1024:
+#                     return Response({
+#                         "error": "File size must be less than 1MB"
+#                     }, status=status.HTTP_400_BAD_REQUEST)
+                
+#                 # Validate file type
+#                 if file.content_type not in ['image/jpeg', 'image/png']:
+#                     return Response({
+#                         "error": "Only JPG and PNG files are allowed"
+#                     }, status=status.HTTP_400_BAD_REQUEST)
+                
+#                 # Generate a unique filename
+#                 ext = file.name.split('.')[-1]
+#                 filename = f"organizer_profiles/{user_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{ext}"
+                
+#                 # Save file to media directory
+#                 file_path = os.path.join(settings.MEDIA_ROOT, filename)
+#                 os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                
+#                 with open(file_path, 'wb+') as destination:
+#                     for chunk in file.chunks():
+#                         destination.write(chunk)
+                
+#                 # Generate URL
+#                 profile_picture_url = f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
+            
+#             with connection.cursor() as cursor:
+#                 # Get current profile data
+#                 cursor.execute("""
+#                     SELECT organization_name, phone, website_url, facebook_url, 
+#                            organization_category, description, profile_picture_url,
+#                            slug
+#                     FROM organizer_profiles 
+#                     WHERE user_id = %s
+#                 """, [user_id])
+#                 current_profile = cursor.fetchone()
+                
+#                 if not current_profile:
+#                     return Response({
+#                         "error": "Profile not found"
+#                     }, status=status.HTTP_404_NOT_FOUND)
+
+#                 # Check if new slug is available if provided
+#                 new_slug = data.get('slug')
+#                 if new_slug:
+#                     # Clean and format the slug
+#                     new_slug = new_slug.lower().strip()
+#                     new_slug = ''.join(c if c.isalnum() or c == '-' else '-' for c in new_slug)
+#                     new_slug = '-'.join(filter(None, new_slug.split('-')))
+                    
+#                     # Check if slug is taken by another user
+#                     cursor.execute("""
+#                         SELECT EXISTS(
+#                             SELECT 1 
+#                             FROM organizer_profiles 
+#                             WHERE slug = %s 
+#                             AND user_id != %s
+#                         )
+#                     """, [new_slug, user_id])
+#                     exists = cursor.fetchone()[0]
+                    
+#                     if exists:
+#                         return Response({
+#                             "error": "This slug is already taken"
+#                         }, status=status.HTTP_400_BAD_REQUEST)
+                
+#                 # Update profile with new data, keeping existing values if not provided
+#                 update_values = [
+#                     data.get('organizationName', current_profile[0]) or current_profile[0],
+#                     data.get('phone', current_profile[1]) or current_profile[1],
+#                     data.get('websiteUrl', current_profile[2]) or current_profile[2],
+#                     data.get('facebookUrl', current_profile[3]) or current_profile[3],
+#                     data.get('organizationCategory', current_profile[4]) or current_profile[4],
+#                     data.get('description', current_profile[5]) or current_profile[5],
+#                     profile_picture_url or current_profile[6],  # Use new picture URL if uploaded, else keep current
+#                     new_slug or current_profile[7],  # Use new slug if provided, else keep current
+#                     user_id
+#                 ]
+                
+#                 cursor.execute("""
+#                     UPDATE organizer_profiles SET
+#                         organization_name = %s,
+#                         phone = %s,
+#                         website_url = %s,
+#                         facebook_url = %s,
+#                         organization_category = %s,
+#                         description = %s,
+#                         profile_picture_url = %s,
+#                         slug = %s
+#                     WHERE user_id = %s
+#                     RETURNING user_id, organization_name, phone, website_url, 
+#                              facebook_url, organization_category, description, 
+#                              profile_picture_url, joined_date, slug;
+#                 """, update_values)
+
+#                 updated_profile = cursor.fetchone()
+
+#                 # Get user data
+#                 cursor.execute("""
+#                     SELECT id, email, username, user_type
+#                     FROM users
+#                     WHERE id = %s
+#                 """, [user_id])
+#                 user = cursor.fetchone()
+
+#                 # Convert None values to empty strings for frontend
+#                 profile_data = {
+#                     "id": str(user[0]),
+#                     "email": user[1],
+#                     "username": user[2],
+#                     "userType": user[3],
+#                     "organizationName": updated_profile[1] if updated_profile[1] else "",
+#                     "phone": updated_profile[2] if updated_profile[2] else "",
+#                     "websiteUrl": updated_profile[3] if updated_profile[3] else "",
+#                     "facebookUrl": updated_profile[4] if updated_profile[4] else "",
+#                     "organizationCategory": updated_profile[5] if updated_profile[5] else "",
+#                     "description": updated_profile[6] if updated_profile[6] else "",
+#                     "profilePicture": updated_profile[7] if updated_profile[7] else "",
+#                     "joinedDate": updated_profile[8].strftime("%B %Y") if updated_profile[8] else "",
+#                     "slug": updated_profile[9] if updated_profile[9] else ""
+#                 }
+
+#                 return Response({
+#                     "message": "Profile updated successfully",
+#                     "user": profile_data
+#                 }, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             print(f"Error updating profile: {str(e)}")
+#             return Response({
+#                 "error": str(e)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class OrganizerProfileView(APIView):
     @token_required
     def put(self, request):
         try:
@@ -447,37 +599,8 @@ class OrganizerProfileView(APIView):
                     "error": "Access denied. This endpoint is for organizers only."
                 }, status=status.HTTP_403_FORBIDDEN)
             
-            # Handle profile picture upload
-            profile_picture_url = None
-            if 'profilePicture' in request.FILES:
-                file = request.FILES['profilePicture']
-                
-                # Validate file size (1MB)
-                if file.size > 1024 * 1024:
-                    return Response({
-                        "error": "File size must be less than 1MB"
-                    }, status=status.HTTP_400_BAD_REQUEST)
-                
-                # Validate file type
-                if file.content_type not in ['image/jpeg', 'image/png']:
-                    return Response({
-                        "error": "Only JPG and PNG files are allowed"
-                    }, status=status.HTTP_400_BAD_REQUEST)
-                
-                # Generate a unique filename
-                ext = file.name.split('.')[-1]
-                filename = f"organizer_profiles/{user_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{ext}"
-                
-                # Save file to media directory
-                file_path = os.path.join(settings.MEDIA_ROOT, filename)
-                os.makedirs(os.path.dirname(file_path), exist_ok=True)
-                
-                with open(file_path, 'wb+') as destination:
-                    for chunk in file.chunks():
-                        destination.write(chunk)
-                
-                # Generate URL
-                profile_picture_url = f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
+            # Profile picture is now a Cloudinary URL
+            profile_picture_url = data.get('profilePicture')
             
             with connection.cursor() as cursor:
                 # Get current profile data
@@ -495,89 +618,49 @@ class OrganizerProfileView(APIView):
                         "error": "Profile not found"
                     }, status=status.HTTP_404_NOT_FOUND)
 
-                # Check if new slug is available if provided
-                new_slug = data.get('slug')
-                if new_slug:
-                    # Clean and format the slug
-                    new_slug = new_slug.lower().strip()
-                    new_slug = ''.join(c if c.isalnum() or c == '-' else '-' for c in new_slug)
-                    new_slug = '-'.join(filter(None, new_slug.split('-')))
-                    
-                    # Check if slug is taken by another user
-                    cursor.execute("""
-                        SELECT EXISTS(
-                            SELECT 1 
-                            FROM organizer_profiles 
-                            WHERE slug = %s 
-                            AND user_id != %s
-                        )
-                    """, [new_slug, user_id])
-                    exists = cursor.fetchone()[0]
-                    
-                    if exists:
-                        return Response({
-                            "error": "This slug is already taken"
-                        }, status=status.HTTP_400_BAD_REQUEST)
-                
-                # Update profile with new data, keeping existing values if not provided
-                update_values = [
-                    data.get('organizationName', current_profile[0]) or current_profile[0],
-                    data.get('phone', current_profile[1]) or current_profile[1],
-                    data.get('websiteUrl', current_profile[2]) or current_profile[2],
-                    data.get('facebookUrl', current_profile[3]) or current_profile[3],
-                    data.get('organizationCategory', current_profile[4]) or current_profile[4],
-                    data.get('description', current_profile[5]) or current_profile[5],
-                    profile_picture_url or current_profile[6],  # Use new picture URL if uploaded, else keep current
-                    new_slug or current_profile[7],  # Use new slug if provided, else keep current
-                    user_id
-                ]
-                
+                # Update profile with new data
                 cursor.execute("""
-                    UPDATE organizer_profiles SET
-                        organization_name = %s,
+                    UPDATE organizer_profiles
+                    SET organization_name = %s,
                         phone = %s,
                         website_url = %s,
                         facebook_url = %s,
                         organization_category = %s,
                         description = %s,
-                        profile_picture_url = %s,
-                        slug = %s
+                        profile_picture_url = CASE 
+                            WHEN %s IS NOT NULL THEN %s 
+                            ELSE profile_picture_url 
+                        END
                     WHERE user_id = %s
-                    RETURNING user_id, organization_name, phone, website_url, 
-                             facebook_url, organization_category, description, 
-                             profile_picture_url, joined_date, slug;
-                """, update_values)
-
+                    RETURNING organization_name, phone, website_url, facebook_url,
+                              organization_category, description, profile_picture_url,
+                              slug
+                """, [
+                    data.get('organizationName', current_profile[0]),
+                    data.get('phone', current_profile[1]),
+                    data.get('websiteUrl', current_profile[2]),
+                    data.get('facebookUrl', current_profile[3]),
+                    data.get('organizationCategory', current_profile[4]),
+                    data.get('description', current_profile[5]),
+                    profile_picture_url,  # For CASE WHEN check
+                    profile_picture_url,  # For actual value
+                    user_id
+                ])
+                
                 updated_profile = cursor.fetchone()
-
-                # Get user data
-                cursor.execute("""
-                    SELECT id, email, username, user_type
-                    FROM users
-                    WHERE id = %s
-                """, [user_id])
-                user = cursor.fetchone()
-
-                # Convert None values to empty strings for frontend
-                profile_data = {
-                    "id": str(user[0]),
-                    "email": user[1],
-                    "username": user[2],
-                    "userType": user[3],
-                    "organizationName": updated_profile[1] if updated_profile[1] else "",
-                    "phone": updated_profile[2] if updated_profile[2] else "",
-                    "websiteUrl": updated_profile[3] if updated_profile[3] else "",
-                    "facebookUrl": updated_profile[4] if updated_profile[4] else "",
-                    "organizationCategory": updated_profile[5] if updated_profile[5] else "",
-                    "description": updated_profile[6] if updated_profile[6] else "",
-                    "profilePicture": updated_profile[7] if updated_profile[7] else "",
-                    "joinedDate": updated_profile[8].strftime("%B %Y") if updated_profile[8] else "",
-                    "slug": updated_profile[9] if updated_profile[9] else ""
-                }
-
+                
                 return Response({
                     "message": "Profile updated successfully",
-                    "user": profile_data
+                    "user": {
+                        "organizationName": updated_profile[0],
+                        "phone": updated_profile[1],
+                        "websiteUrl": updated_profile[2],
+                        "facebookUrl": updated_profile[3],
+                        "organizationCategory": updated_profile[4],
+                        "description": updated_profile[5],
+                        "profilePicture": updated_profile[6],
+                        "slug": updated_profile[7]
+                    }
                 }, status=status.HTTP_200_OK)
 
         except Exception as e:
@@ -585,7 +668,6 @@ class OrganizerProfileView(APIView):
             return Response({
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class OrganizerSlugView(APIView):
     @token_required
