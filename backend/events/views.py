@@ -584,6 +584,7 @@ class PublicEventsView(APIView):
                         e.slug,
                         op.organization_name,
                         op.profile_picture_url as organizer_image,
+                        op.slug as organizer_slug,
                         (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id) as registration_count
                     FROM events e
                     JOIN organizer_profiles op ON e.organizer_id = op.user_id
@@ -664,7 +665,8 @@ class PublicEventsView(APIView):
                         "slug": event[14],
                         "organizationName": event[15],
                         "organizerImage": event[16],
-                        "registrationCount": event[17]
+                        "organizerSlug": event[17],
+                        "registrationCount": event[18]
                     })
 
                 return Response({
