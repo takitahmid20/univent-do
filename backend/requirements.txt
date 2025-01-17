@@ -72,3 +72,4 @@ urllib3==2.2.3
 virtualenv==20.26.6
 websockets==12.0
 whitenoise==6.6.0
+cloudinary==1.37.0
