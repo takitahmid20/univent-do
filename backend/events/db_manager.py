@@ -1251,6 +1251,7 @@ def get_organizer_dashboard(organizer_id):
                     event_time,
                     venue,
                     max_attendees,
+                    image_url,
                     slug,
                     (
                         SELECT COALESCE(SUM(number_of_seats), 0)
