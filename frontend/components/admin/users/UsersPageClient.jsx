@@ -1,17 +1,33 @@
 // components/admin/users/UsersPageClient.jsx
 'use client';
-import { FaUser, FaUserCheck, FaUserPlus, FaBan, FaEllipsisV } from 'react-icons/fa';
+import { FaUser, FaUserCheck, FaUserPlus, FaBan, FaEllipsisV, FaSync } from 'react-icons/fa';
 import PageHeader from '@/components/shared/PageHeader';
 import SearchFilterBar from '@/components/shared/SearchFilterBar';
 import StatsCard from '@/components/shared/StatsCard';
 import DataTable from '@/components/shared/DataTable';
+import { useState } from 'react';
 
-export default function UsersPageClient({ users, stats }) {
+export default function UsersPageClient({ users, stats, onDeleteUser, onRefresh }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filter, setFilter] = useState('all');
+
   const filterOptions = [
     { value: 'active', label: 'Active' },
     { value: 'inactive', label: 'Inactive' },
     { value: 'banned', label: 'Banned' }
   ];
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.university.toLowerCase().includes(searchTerm.toLowerCase());
+
+    if (filter === 'all') return matchesSearch;
+    if (filter === 'active') return matchesSearch && user.status === 'active';
+    if (filter === 'inactive') return matchesSearch && user.status === 'inactive';
+    return matchesSearch;
+  });
 
   const columns = [
     {
@@ -54,18 +70,28 @@ export default function UsersPageClient({ users, stats }) {
       <button className="text-[#f6405f] hover:text-[#d63850]">
         View Profile
       </button>
+      <button 
+        onClick={() => onDeleteUser(item.id)} 
+        className="text-red-500 hover:text-red-700"
+      >
+        Delete
+      </button>
       <button className="text-gray-500 hover:text-gray-700">
         <FaEllipsisV />
       </button>
     </div>
   );
 
+  const handleRefresh = () => {
+    if (onRefresh) onRefresh();
+  };
+
   const handleSearch = (query) => {
-    console.log('Search:', query);
+    setSearchTerm(query);
   };
 
   const handleFilter = (filter) => {
-    console.log('Filter:', filter);
+    setFilter(filter);
   };
 
   const handleAdd = () => {
@@ -78,6 +104,17 @@ export default function UsersPageClient({ users, stats }) {
         title="Users Management"
         description="Manage and monitor user accounts"
       />
+
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-semibold text-gray-900">Users Management</h1>
+        <button
+          onClick={handleRefresh}
+          className="flex items-center gap-2 px-4 py-2 bg-[#f6405f] text-white rounded-md hover:bg-[#d93350] transition-colors"
+        >
+          <FaSync className="w-4 h-4" />
+          Refresh
+        </button>
+      </div>
 
       <SearchFilterBar
         searchPlaceholder="Search users..."
@@ -121,7 +158,7 @@ export default function UsersPageClient({ users, stats }) {
 
       <DataTable 
         columns={columns}
-        data={users}
+        data={filteredUsers}
         rowActions={rowActions}
       />
     </div>

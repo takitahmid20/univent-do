@@ -37,4 +37,10 @@ export const API_ENDPOINTS = {
     
     // Check-in endpoints
     TOGGLE_CHECK_IN: (registrationId) => `${API_BASE_URL}/api/events/check-in/toggle/${registrationId}/`,
+    
+    // Admin endpoints
+    ADMIN_LIST_ATTENDEES: `${API_BASE_URL}/api/admin/attendees/`,
+    ADMIN_LIST_ORGANIZERS: `${API_BASE_URL}/api/admin/organizers/`,
+    ADMIN_DELETE_ATTENDEE: (attendeeId) => `${API_BASE_URL}/api/admin/attendees/${attendeeId}/`,
+    ADMIN_DELETE_ORGANIZER: (organizerId) => `${API_BASE_URL}/api/admin/organizers/${organizerId}/`,
 };
