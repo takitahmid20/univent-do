@@ -13,7 +13,7 @@ export default function HomePage() {
       <div className="mx-[0px] sm:mx-[60px]">
       {/* <LocalEvents /> */}
       <EventList />
-      <CategorySection />
+      {/* <CategorySection /> */}
       <FeaturedOrganizers />
 
       </div>

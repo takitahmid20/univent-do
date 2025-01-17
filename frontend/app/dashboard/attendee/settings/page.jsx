@@ -145,38 +145,46 @@ export default function SettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (1MB)
-    if (file.size > 1024 * 1024) {
-      setMessage({ type: 'error', text: 'File size must be less than 1MB' });
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'File size must be less than 5MB' });
       return;
     }
 
     // Validate file type
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-      setMessage({ type: 'error', text: 'Only JPG and PNG files are allowed' });
+    if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+      setMessage({ type: 'error', text: 'Only JPG, PNG and GIF files are allowed' });
       return;
     }
 
-    // Create image preview
-    const reader = new FileReader();
-    reader.onloadstart = () => setUploadProgress(0);
-    reader.onprogress = (e) => {
-      if (e.lengthComputable) {
-        const progress = (e.loaded / e.total) * 100;
-        setUploadProgress(progress);
+    try {
+      // Create form data for upload
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Upload to Cloudinary through our backend
+      const uploadResponse = await fetch(API_ENDPOINTS.UPLOAD_IMAGE, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formData
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload image');
       }
+
+      const uploadResult = await uploadResponse.json();
+      
+      // Set the Cloudinary URL
+      setImagePreview(uploadResult.image_url);
+      setFormData(prev => ({ ...prev, avatar: uploadResult.image_url }));
+      setMessage({ type: 'success', text: 'Image uploaded successfully' });
+    } catch (error) {
+      console.error('Upload error:', error);
+      setMessage({ type: 'error', text: 'Failed to upload image' });
     };
-    reader.onload = (e) => {
-      setImagePreview(e.target.result);
-      setUploadProgress(100);
-      setFormData(prev => ({ ...prev, avatar: file }));
-      setTimeout(() => setUploadProgress(0), 1000);
-    };
-    reader.onerror = () => {
-      setMessage({ type: 'error', text: 'Error reading file' });
-      setUploadProgress(0);
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e) => {
@@ -198,93 +206,63 @@ export default function SettingsPage() {
       const currentUser = userStr ? JSON.parse(userStr) : null;
       
       if (currentUser && formData.email !== currentUser.email) {
-        // Update email first
-        const emailUpdateResponse = await fetch(API_ENDPOINTS.UPDATE_EMAIL, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email: formData.email })
-        });
+        try {
+          const emailResponse = await fetch(API_ENDPOINTS.UPDATE_EMAIL, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: formData.email })
+          });
 
-        if (!emailUpdateResponse.ok) {
-          const emailError = await emailUpdateResponse.json();
-          if (emailUpdateResponse.status === 409) {
-            throw new Error('This email is already registered. Please use a different email.');
+          if (!emailResponse.ok) {
+            throw new Error('Failed to update email');
           }
-          throw new Error(emailError.message || 'Failed to update email');
+        } catch (error) {
+          console.error('Email update error:', error);
+          setMessage({ type: 'error', text: 'Failed to update email' });
+          setIsSubmitting(false);
+          return;
         }
       }
 
-      // Create FormData to handle file upload
-      const formDataToSend = new FormData();
-      
-      // Map frontend field names to backend field names
-      formDataToSend.append('fullName', formData.name);
-      formDataToSend.append('phone', formData.phone);
-      formDataToSend.append('university', formData.university);
-      formDataToSend.append('department', formData.department);
-      formDataToSend.append('location', formData.bio);
-
-      // Append file separately if exists
-      if (formData.avatar instanceof File) {
-        formDataToSend.append('profilePicture', formData.avatar);
-      }
+      // Then update the rest of the profile
+      const profileData = {
+        fullName: formData.name,
+        phone: formData.phone,
+        university: formData.university,
+        department: formData.department,
+        location: formData.bio,
+        profilePicture: formData.avatar  // Now using Cloudinary URL
+      };
 
       const response = await fetch(API_ENDPOINTS.UPDATE_PROFILE, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        body: formDataToSend
+        body: JSON.stringify(profileData)
       });
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (error) {
-        console.error('Error parsing response:', error);
-        throw new Error('Failed to update profile - Invalid response from server');
-      }
-
       if (!response.ok) {
-        throw new Error(data.error || data.message || 'Failed to update profile');
+        throw new Error('Failed to update profile');
       }
 
+      setMessage({ type: 'success', text: 'Profile updated successfully' });
+      
       // Update local storage
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        localStorage.setItem('user', JSON.stringify({
-          ...user,
-          fullName: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          university: formData.university,
-          department: formData.department,
-          location: formData.bio
-        }));
-      }
+      const updatedUser = {
+        ...currentUser,
+        email: formData.email,
+        fullName: formData.name
+      };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
 
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (error) {
-      if (error instanceof Yup.ValidationError) {
-        const validationErrors = {};
-        error.inner.forEach(err => {
-          validationErrors[err.path] = err.message;
-        });
-        setErrors(validationErrors);
-        setMessage({ type: 'error', text: 'Please fix the errors below' });
-        
-        // Scroll to first error
-        const firstError = document.querySelector('.error-message');
-        if (firstError) {
-          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      } else {
-        setMessage({ type: 'error', text: error.message || 'Error updating profile' });
-      }
+      console.error('Profile update error:', error);
+      setMessage({ type: 'error', text: error.message || 'Failed to update profile' });
     } finally {
       setIsSubmitting(false);
     }
