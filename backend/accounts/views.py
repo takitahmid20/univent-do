@@ -297,6 +297,25 @@ class AttendeeProfileView(APIView):
                     "error": "Access denied. This endpoint is for attendees only."
                 }, status=status.HTTP_403_FORBIDDEN)
 
+            # Handle profile picture upload to Cloudinary if present
+            profile_picture_url = None
+            if 'profilePicture' in request.FILES:
+                file = request.FILES['profilePicture']
+                try:
+                    # Upload to Cloudinary
+                    upload_result = cloudinary.uploader.upload(
+                        file,
+                        folder="profile_pictures",
+                        public_id=f"user_{user_id}_{int(datetime.now().timestamp())}",
+                        overwrite=True,
+                        resource_type="image"
+                    )
+                    profile_picture_url = upload_result.get('secure_url')
+                except Exception as e:
+                    return Response({
+                        "error": f"Failed to upload image: {str(e)}"
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             with connection.cursor() as cursor:
                 # Update profile with Cloudinary URL
                 cursor.execute("""
@@ -315,7 +334,7 @@ class AttendeeProfileView(APIView):
                     data.get('university'),
                     data.get('department'),
                     data.get('location'),
-                    data.get('profilePicture'),  # Cloudinary URL
+                    profile_picture_url or data.get('profilePicture'),  # Use new upload URL or existing URL
                     user_id
                 ])
 
