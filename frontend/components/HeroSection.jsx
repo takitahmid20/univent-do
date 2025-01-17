@@ -1,12 +1,13 @@
-// components/HeroSection.jsx
 "use client";
 import React, { useState } from 'react';
 import InputField from '@/components/InputField';
 import Button from '@/components/Button';
 import Dropdown from '@/components/Dropdown';
-import { FaSearch } from 'react-icons/fa'; // Import search icon
+import { FaSearch } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 
 const HeroSection = () => {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
 
@@ -18,10 +19,28 @@ const HeroSection = () => {
     setCategory(e.target.value);
   };
 
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (category) params.append('category', category);
+    
+    router.push(`/events?${params.toString()}`);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   const categories = [
-    { value: 'Competition', label: 'Competition' },
+    { value: '', label: 'All Categories' },
+    { value: 'Conference', label: 'Conference' },
     { value: 'Workshop', label: 'Workshop' },
     { value: 'Seminar', label: 'Seminar' },
+    { value: 'Hackathon', label: 'Hackathon' },
+    { value: 'Meetup', label: 'Meetup' },
+    { value: 'Cultural', label: 'Cultural' }
   ];
 
   return (
@@ -49,55 +68,57 @@ const HeroSection = () => {
           </p>
 
           {/* Search Section */}
-<div className="max-w-3xl mx-auto">
-  <div className="flex items-center bg-white rounded-2xl p-2 shadow-lg">
-    {/* Search Input */}
-    <div className="flex-grow px-4">
-      <InputField
-        type="text"
-        placeholder="Search events by name or location..."
-        value={search}
-        onChange={handleSearchChange}
-        className="w-full border-none focus:ring-0"
-      />
-    </div>
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center bg-white rounded-2xl p-2 shadow-lg">
+              {/* Search Input */}
+              <div className="flex-grow px-4">
+                <InputField
+                  type="text"
+                  placeholder="Search events by name or location..."
+                  value={search}
+                  onChange={handleSearchChange}
+                  onKeyPress={handleKeyPress}
+                  className="w-full border-none focus:ring-0"
+                />
+              </div>
 
-    {/* Divider */}
-    <div className="h-8 w-px bg-gray-200 mx-2"></div>
+              {/* Divider */}
+              <div className="h-8 w-px bg-gray-200 mx-2"></div>
 
-    {/* Category Dropdown */}
-    <div className="min-w-[140px] px-2">
-      <Dropdown
-        options={categories}
-        value={category}
-        onChange={handleCategoryChange}
-        className="border-none focus:ring-0"
-      />
-    </div>
+              {/* Category Dropdown */}
+              <div className="min-w-[140px] px-2">
+                <Dropdown
+                  options={categories}
+                  value={category}
+                  onChange={handleCategoryChange}
+                  className="border-none focus:ring-0"
+                />
+              </div>
 
-    {/* Search Button */}
-    <button className="bg-[#18181B] p-4 rounded-xl ml-2">
-      <FaSearch className="text-white text-xl" />
-    </button>
-  </div>
-</div>
+              {/* Search Button */}
+              <button 
+                onClick={handleSearch}
+                className="bg-[#18181B] p-4 rounded-xl ml-2 hover:bg-[#27272A] transition-colors duration-200"
+              >
+                <FaSearch className="text-white text-xl" />
+              </button>
+            </div>
+          </div>
 
-{/* Rest of your code... */}
-
-          {/* Stats Section - With reduced spacing */}
+          {/* Stats Section */}
           <div className="mt-8 flex justify-center items-center">
-  {[
-    { label: 'Active Events', value: '2,000+' },
-    { label: 'Organizers', value: '500+' },
-    { label: 'Categories', value: '50+' },
-    { label: 'Monthly Users', value: '10K+' },
-  ].map((stat, index) => (
-    <div key={index} className="text-white px-4 mx-2"> {/* Reduced padding and margin */}
-      <div className="text-2xl font-bold">{stat.value}</div>
-      <div className="text-sm text-gray-300">{stat.label}</div>
-    </div>
-  ))}
-</div>
+            {[
+              { label: 'Active Events', value: '2,000+' },
+              { label: 'Organizers', value: '500+' },
+              { label: 'Categories', value: '50+' },
+              { label: 'Monthly Users', value: '10K+' },
+            ].map((stat, index) => (
+              <div key={index} className="text-white px-4 mx-2">
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="text-sm text-gray-300">{stat.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

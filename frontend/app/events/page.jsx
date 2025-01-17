@@ -1,21 +1,23 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { FaMapMarkerAlt, FaCalendarAlt, FaSearch, FaFilter, FaTimes, FaUser } from 'react-icons/fa';
 import axios from 'axios';
 import EventBox from '@/components/EventBox';
 
 const EventsPage = () => {
+  const searchParams = useSearchParams();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [filters, setFilters] = useState({
-    category: '',
+    search: searchParams.get('search') || '',
+    category: searchParams.get('category') || '',
     date: '',
-    priceRange: '',
-    search: ''
+    priceRange: ''
   });
 
   // Debounce function
