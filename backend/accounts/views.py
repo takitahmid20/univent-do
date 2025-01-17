@@ -296,30 +296,9 @@ class AttendeeProfileView(APIView):
                 return Response({
                     "error": "Access denied. This endpoint is for attendees only."
                 }, status=status.HTTP_403_FORBIDDEN)
-            
-            # Handle profile picture
-            profile_picture_url = None
-            if 'profilePicture' in request.FILES:
-                file = request.FILES['profilePicture']
-                # Generate a unique filename
-                ext = file.name.split('.')[-1]
-                filename = f"profile_pictures/{user_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{ext}"
-                
-                # Save file to media directory
-                file_path = os.path.join(settings.MEDIA_ROOT, filename)
-                os.makedirs(os.path.dirname(file_path), exist_ok=True)
-                
-                with open(file_path, 'wb+') as destination:
-                    for chunk in file.chunks():
-                        destination.write(chunk)
-                
-                # Generate URL
-                profile_picture_url = f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
-            
+
             with connection.cursor() as cursor:
-                # Only update profile picture if a new one was uploaded
-                profile_picture_param = profile_picture_url if profile_picture_url else data.get('profilePicture')
-                
+                # Update profile with Cloudinary URL
                 cursor.execute("""
                     UPDATE attendee_profiles SET
                         full_name = COALESCE(%s, full_name),
@@ -336,7 +315,7 @@ class AttendeeProfileView(APIView):
                     data.get('university'),
                     data.get('department'),
                     data.get('location'),
-                    profile_picture_param,
+                    data.get('profilePicture'),  # Cloudinary URL
                     user_id
                 ])
 
@@ -346,7 +325,7 @@ class AttendeeProfileView(APIView):
                         "error": "Profile not found"
                     }, status=status.HTTP_404_NOT_FOUND)
 
-                # Get user data
+                # Get updated user data
                 cursor.execute("""
                     SELECT id, email, username, user_type
                     FROM users
