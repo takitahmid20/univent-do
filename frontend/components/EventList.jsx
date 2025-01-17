@@ -5,6 +5,8 @@ import EventBox from '@/components/EventBox';
 import { FaFilter, FaSort } from 'react-icons/fa';
 import Button from '@/components/Button';
 import { API_ENDPOINTS } from '@/lib/config';
+import Link from 'next/link';
+
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
@@ -125,9 +127,11 @@ const EventList = () => {
       {/* Load More Button */}
       {filteredEvents.length > 0 && (
         <div className="text-center mt-8">
-          <Button className="px-8">
-            Load More Events
-          </Button>
+          <Link href="/events" rel="noopener noreferrer">
+            <Button className="px-8">
+              Load More Events
+            </Button>
+          </Link>
         </div>
       )}
     </div>

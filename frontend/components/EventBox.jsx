@@ -35,10 +35,14 @@ const EventBox = ({ event }) => {
       <div className="relative">
         <Link href={`/events/${event.slug || createSlug(event.title) || ''}`}>
           <div className="aspect-[16/9] overflow-hidden">
-            <img 
+          <img 
               src={event.imageUrl || '/images/default-event.jpg'} 
               alt={event.title || 'Event'} 
               className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/images/default-event.jpg';
+              }}
             />
           </div>
         </Link>

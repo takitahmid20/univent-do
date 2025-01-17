@@ -58,12 +58,24 @@ const EventsContent = () => {
 
         // Transform event data to match frontend structure
         allEvents = allEvents.map(event => ({
-          ...event,
-          eventDate: event.event_date,
-          eventTime: event.event_time,
-          ticketPrice: event.ticket_price ? parseFloat(event.ticket_price) : 0,
-          imageUrl: event.image_url,
-          organizerImage: event.organizer_image
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          eventType: event.eventType,
+          category: event.category,
+          imageUrl: event.imageUrl || event.image_url,  
+          venue: event.venue,
+          eventDate: event.eventDate || event.event_date,
+          eventTime: event.eventTime || event.event_time,
+          ticketPrice: event.ticketPrice ? parseFloat(event.ticketPrice) : (event.ticket_price ? parseFloat(event.ticket_price) : 0),
+          maxAttendees: event.maxAttendees || event.max_attendees,
+          address: event.address,
+          createdAt: event.createdAt || event.created_at,
+          status: event.status,
+          slug: event.slug,
+          organizationName: event.organizationName || event.organization_name,
+          organizerImage: event.organizerImage || event.organizer_image,
+          registrationCount: event.registrationCount || event.registration_count
         }));
 
         // Apply filters
