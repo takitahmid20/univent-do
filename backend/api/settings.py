@@ -14,7 +14,10 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    'univent-backend.onrender.com'
+    'univent-backend.onrender.com',
+    'myunivent.com',
+    'www.myunivent.com',
+    'univent-frontend.vercel.app',
 ]
 if os.environ.get('ALLOWED_HOSTS'):
     ALLOWED_HOSTS.extend(os.environ.get('ALLOWED_HOSTS').split(','))
@@ -25,6 +28,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://univent-frontend.vercel.app",
+    "https://myunivent.com",
+    "https://www.myunivent.com"
 ]
 if os.environ.get('CORS_ALLOWED_ORIGINS'):
     CORS_ALLOWED_ORIGINS.extend(os.environ.get('CORS_ALLOWED_ORIGINS').split(','))
