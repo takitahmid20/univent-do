@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { FaMapMarkerAlt, FaEnvelope, FaPhone, FaGlobe, FaCalendarAlt, FaUsers, FaStar } from 'react-icons/fa';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const OrganizerDetailsPage = () => {
   const params = useParams();
@@ -202,23 +203,33 @@ const OrganizerDetailsPage = () => {
                   href={`/events/${event.slug}`} 
                   key={index}
                 >
-                  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{event.title}</h3>
-                    <div className="space-y-2 text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <FaCalendarAlt className="text-[#f6405f]" />
-                        <span>{new Date(event.date).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}</span>
-                      </div>
-                      {event.venue && (
+                  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
+                    <div className="relative w-full h-48">
+                      <Image
+                        src={event.image_url || '/placeholder-event.jpg'}
+                        alt={event.title}
+                        fill
+                        className="object-cover rounded-t-xl"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">{event.title}</h3>
+                      <div className="space-y-2 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
-                          <FaMapMarkerAlt className="text-[#f6405f]" />
-                          <span>{event.venue}</span>
+                          <FaCalendarAlt className="text-[#f6405f]" />
+                          <span>{new Date(event.date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}</span>
                         </div>
-                      )}
+                        {event.venue && (
+                          <div className="flex items-center gap-2">
+                            <FaMapMarkerAlt className="text-[#f6405f]" />
+                            <span>{event.venue}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>
