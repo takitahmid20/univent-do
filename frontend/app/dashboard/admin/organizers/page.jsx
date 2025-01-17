@@ -29,6 +29,12 @@ export default function OrganizersPage() {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          // Token expired or invalid, redirect to login
+          localStorage.removeItem('adminToken');
+          window.location.href = '/dashboard/admin/login';
+          return;
+        }
         throw new Error('Failed to fetch organizers');
       }
 

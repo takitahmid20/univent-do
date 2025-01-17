@@ -211,7 +211,7 @@ export default function SigninPage() {
                   </button>
                 </div>
 
-                <div className="mt-6">
+                {/* <div className="mt-6">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <div className="w-full border-t border-gray-300" />
@@ -242,7 +242,7 @@ export default function SigninPage() {
                       </button>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </Form>
             )}
           </Formik>

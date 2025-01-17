@@ -123,7 +123,7 @@ const SignUpPage = () => {
             {({ errors, touched, handleChange, handleBlur, values, isSubmitting }) => (
               <Form className="space-y-6">
                 {/* Social Sign Up Buttons */}
-                <div className="space-y-3">
+                {/* <div className="space-y-3">
                   <button 
                     type="button"
                     className="w-full flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
@@ -138,14 +138,14 @@ const SignUpPage = () => {
                     <FaFacebook className="text-[#4267B2]" />
                     <span className="font-medium text-gray-700">Continue with Facebook</span>
                   </button>
-                </div>
+                </div> */}
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-200"></div>
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white px-4 text-sm text-gray-500">or sign up with email</span>
+                    <span className="bg-white px-4 text-sm text-gray-500">Sign up with email</span>
                   </div>
                 </div>
 
