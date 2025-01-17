@@ -646,12 +646,12 @@ class OrganizerProfileView(APIView):
                 # Update profile with new data
                 cursor.execute("""
                     UPDATE organizer_profiles
-                    SET organization_name = %s,
-                        phone = %s,
-                        website_url = %s,
-                        facebook_url = %s,
-                        organization_category = %s,
-                        description = %s,
+                    SET organization_name = COALESCE(%s, organization_name),
+                        phone = COALESCE(%s, phone),
+                        website_url = COALESCE(%s, website_url),
+                        facebook_url = COALESCE(%s, facebook_url),
+                        organization_category = COALESCE(%s, organization_category),
+                        description = COALESCE(%s, description),
                         profile_picture_url = CASE 
                             WHEN %s IS NOT NULL THEN %s 
                             ELSE profile_picture_url 
@@ -662,15 +662,15 @@ class OrganizerProfileView(APIView):
                               organization_category, description, profile_picture_url,
                               slug
                 """, [
-                    data.get('organizationName', current_profile[0]),
-                    data.get('phone', current_profile[1]),
-                    data.get('websiteUrl', current_profile[2]),
-                    data.get('facebookUrl', current_profile[3]),
-                    data.get('organizationCategory', current_profile[4]),
-                    data.get('description', current_profile[5]),
-                    data.get('slug', current_profile[7]),
+                    data.get('organizationName'),
+                    data.get('phone'),
+                    data.get('websiteUrl'),
+                    data.get('facebookUrl'),
+                    data.get('organizationCategory'),
+                    data.get('description'),
                     profile_picture_url,  # For CASE WHEN check
                     profile_picture_url,  # For actual value
+                    data.get('slug'),  # Add slug to update
                     user_id
                 ])
                 
