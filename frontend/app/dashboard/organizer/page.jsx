@@ -157,7 +157,9 @@ export default function OrganizerDashboard() {
                 </div>
                 <div className="mt-4 flex justify-between items-center">
                   <span className="text-[#f6405f] font-semibold">
-                    ৳{event.ticket_price?.toFixed(2) || 'Free'}
+                    {event.ticket_price && event.ticket_price > 0 
+                      ? `৳${parseFloat(event.ticket_price).toFixed(2)}` 
+                      : 'Free'}
                   </span>
                   <button className="text-gray-400 hover:text-gray-600">
                     <FaEllipsisH />

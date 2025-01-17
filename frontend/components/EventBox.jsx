@@ -87,7 +87,7 @@ const EventBox = ({ event }) => {
         <div className="flex items-center justify-between">
           {/* Organizer Info */}
           {event.organizationName && (
-            <Link href={`/organizers/${createSlug(event.organizationName)}`}>
+            <Link href={`/organizers/${event.organizerSlug}`}>
               <div className="flex items-center gap-2">
                 <img 
                   src={event.organizerImage || '/images/default-organizer.jpg'} 
