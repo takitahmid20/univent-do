@@ -49,73 +49,80 @@ const EventsPage = () => {
         const response = await axios.get('https://univent-backend.onrender.com/api/events/');
         console.log('API Response:', response.data);
 
-        if (response.data.status === 'success') {
-          let allEvents = response.data.data || [];
-          console.log('All events:', allEvents);
+        // Extract events from response
+        let allEvents = response.data.events || [];
+        console.log('All events:', allEvents);
 
-          // Apply filters
-          let filteredEvents = [...allEvents];
+        // Transform event data to match frontend structure
+        allEvents = allEvents.map(event => ({
+          ...event,
+          eventDate: event.event_date,
+          eventTime: event.event_time,
+          ticketPrice: event.ticket_price,
+          imageUrl: event.image_url,
+          organizerImage: event.organizer_image
+        }));
 
-          if (filters.search) {
-            const searchTerm = filters.search.toLowerCase();
-            filteredEvents = filteredEvents.filter(event =>
-              event.title?.toLowerCase().includes(searchTerm) ||
-              event.venue?.toLowerCase().includes(searchTerm)
-            );
-          }
+        // Apply filters
+        let filteredEvents = [...allEvents];
 
-          if (filters.category && filters.category !== 'All Categories') {
-            filteredEvents = filteredEvents.filter(event =>
-              event.category === filters.category
-            );
-          }
-
-          if (filters.date) {
-            const today = new Date();
-            
-            switch (filters.date) {
-              case 'today':
-                filteredEvents = filteredEvents.filter(event =>
-                  new Date(event.event_date).toDateString() === today.toDateString()
-                );
-                break;
-              case 'week':
-                const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-                filteredEvents = filteredEvents.filter(event =>
-                  new Date(event.event_date) >= today && new Date(event.event_date) <= weekFromNow
-                );
-                break;
-              case 'month':
-                const monthFromNow = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
-                filteredEvents = filteredEvents.filter(event =>
-                  new Date(event.event_date) >= today && new Date(event.event_date) <= monthFromNow
-                );
-                break;
-            }
-          }
-
-          if (filters.priceRange) {
-            switch (filters.priceRange) {
-              case 'free':
-                filteredEvents = filteredEvents.filter(event => event.ticket_price === 0);
-                break;
-              case 'under-500':
-                filteredEvents = filteredEvents.filter(event => event.ticket_price < 500);
-                break;
-              case '500-1000':
-                filteredEvents = filteredEvents.filter(event => event.ticket_price >= 500 && event.ticket_price <= 1000);
-                break;
-              case 'above-1000':
-                filteredEvents = filteredEvents.filter(event => event.ticket_price > 1000);
-                break;
-            }
-          }
-
-          console.log('Filtered events:', filteredEvents);
-          setEvents(filteredEvents);
-        } else {
-          setError('Failed to fetch events');
+        if (filters.search) {
+          const searchTerm = filters.search.toLowerCase();
+          filteredEvents = filteredEvents.filter(event =>
+            event.title?.toLowerCase().includes(searchTerm) ||
+            event.venue?.toLowerCase().includes(searchTerm)
+          );
         }
+
+        if (filters.category && filters.category !== 'All Categories') {
+          filteredEvents = filteredEvents.filter(event =>
+            event.category === filters.category
+          );
+        }
+
+        if (filters.date) {
+          const today = new Date();
+          
+          switch (filters.date) {
+            case 'today':
+              filteredEvents = filteredEvents.filter(event =>
+                new Date(event.eventDate).toDateString() === today.toDateString()
+              );
+              break;
+            case 'week':
+              const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+              filteredEvents = filteredEvents.filter(event =>
+                new Date(event.eventDate) >= today && new Date(event.eventDate) <= weekFromNow
+              );
+              break;
+            case 'month':
+              const monthFromNow = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+              filteredEvents = filteredEvents.filter(event =>
+                new Date(event.eventDate) >= today && new Date(event.eventDate) <= monthFromNow
+              );
+              break;
+          }
+        }
+
+        if (filters.priceRange) {
+          switch (filters.priceRange) {
+            case 'free':
+              filteredEvents = filteredEvents.filter(event => event.ticketPrice === 0);
+              break;
+            case 'under-500':
+              filteredEvents = filteredEvents.filter(event => event.ticketPrice < 500);
+              break;
+            case '500-1000':
+              filteredEvents = filteredEvents.filter(event => event.ticketPrice >= 500 && event.ticketPrice <= 1000);
+              break;
+            case 'above-1000':
+              filteredEvents = filteredEvents.filter(event => event.ticketPrice > 1000);
+              break;
+          }
+        }
+
+        console.log('Filtered events:', filteredEvents);
+        setEvents(filteredEvents);
       } catch (err) {
         console.error('Fetch error:', err);
         setError(err.message);
