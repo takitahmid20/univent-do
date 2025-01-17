@@ -147,7 +147,7 @@ const EventDetails = ({ event, API_BASE_URL }) => {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-xl p-6 shadow-md">
             <h3 className="text-xl font-semibold mb-4">About This Event</h3>
-            <p className="text-gray-600 whitespace-pre-line">{event.description}</p>
+            <p className="text-gray-600 whitespace-pre-line break-words max-w-full overflow-hidden">{event.description}</p>
           </div>
 
           {/* Ticket Design Section */}
