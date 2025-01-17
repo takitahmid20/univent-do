@@ -23,6 +23,10 @@ from .db_manager import create_event, get_event, get_organizer_events, update_ev
 from django.http import HttpResponse
 from .ticket_generator import generate_ticket_pdf
 
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
+
 logger = logging.getLogger(__name__)
 
 # Create your views here.
@@ -609,6 +613,54 @@ class PublicEventsView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+# class ImageUploadView(APIView):
+#     @token_required
+#     def post(self, request):
+#         """Upload an image for an event"""
+#         try:
+#             if 'file' not in request.FILES:
+#                 return Response({
+#                     'error': 'No image file provided'
+#                 }, status=status.HTTP_400_BAD_REQUEST)
+
+#             image = request.FILES['file']
+
+#             # Validate file type
+#             if not image.content_type.startswith('image/'):
+#                 return Response({
+#                     'error': 'Invalid file type. Only images are allowed.'
+#                 }, status=status.HTTP_400_BAD_REQUEST)
+
+#             # Validate file size (10MB)
+#             if image.size > 10 * 1024 * 1024:
+#                 return Response({
+#                     'error': 'File too large. Maximum size is 10MB.'
+#                 }, status=status.HTTP_400_BAD_REQUEST)
+
+#             # Generate unique filename
+#             ext = image.name.split('.')[-1]
+#             filename = f"{uuid.uuid4()}.{ext}"
+
+#             # Save file to media/events directory
+#             filepath = os.path.join('media', 'events', filename)
+#             os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+#             with open(filepath, 'wb+') as destination:
+#                 for chunk in image.chunks():
+#                     destination.write(chunk)
+
+#             # Return the URL with full domain
+#             image_url = f"{settings.SITE_URL}/media/events/{filename}"
+#             return Response({
+#                 'image_url': image_url
+#             }, status=status.HTTP_201_CREATED)
+
+#         except Exception as e:
+#             print(f"Error uploading image: {str(e)}")
+#             return Response({
+#                 'error': f'Failed to upload image: {str(e)}'
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class ImageUploadView(APIView):
     @token_required
     def post(self, request):
@@ -633,23 +685,33 @@ class ImageUploadView(APIView):
                     'error': 'File too large. Maximum size is 10MB.'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Generate unique filename
-            ext = image.name.split('.')[-1]
-            filename = f"{uuid.uuid4()}.{ext}"
+            try:
+                # Upload to Cloudinary
+                upload_result = cloudinary.uploader.upload(
+                    image,
+                    folder="univent/events",  # Organize files in a folder
+                    resource_type="image",
+                    transformation=[
+                        {"quality": "auto:good"},  # Automatic quality optimization
+                        {"fetch_format": "auto"},  # Auto-select best format
+                        {"width": 800, "crop": "limit"}  # Resize if needed
+                    ]
+                )
+                print("Cloudinary upload result:", upload_result)
+                
+                if 'secure_url' not in upload_result:
+                    raise Exception("No secure URL in Cloudinary response")
 
-            # Save file to media/events directory
-            filepath = os.path.join('media', 'events', filename)
-            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+                # Return the Cloudinary secure URL
+                return Response({
+                    'image_url': upload_result['secure_url']
+                }, status=status.HTTP_201_CREATED)
 
-            with open(filepath, 'wb+') as destination:
-                for chunk in image.chunks():
-                    destination.write(chunk)
-
-            # Return the URL with full domain
-            image_url = f"{settings.SITE_URL}/media/events/{filename}"
-            return Response({
-                'image_url': image_url
-            }, status=status.HTTP_201_CREATED)
+            except Exception as cloud_error:
+                print(f"Cloudinary upload error: {str(cloud_error)}")
+                return Response({
+                    'error': f'Failed to upload to Cloudinary: {str(cloud_error)}'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as e:
             print(f"Error uploading image: {str(e)}")

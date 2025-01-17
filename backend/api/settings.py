@@ -2,6 +2,9 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
+import cloudinary
+import cloudinary.uploader
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dg#)&_)k1l0!@vpoh^&ij04lj2=z1-3b10ct*2fpeo+yx6fxq=')
@@ -178,3 +181,15 @@ SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdX
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For testing
 DEFAULT_FROM_EMAIL = 'noreply@myunivent.com'
+
+# Cloudinary Settings
+CLOUDINARY_CLOUD_NAME = 'takitahmid'
+CLOUDINARY_API_KEY = '119249779258248'
+CLOUDINARY_API_SECRET = 'IitlE_gGr8AQXSL_GDud2xayawo'
+
+cloudinary.config(
+    cloud_name=CLOUDINARY_CLOUD_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET,
+    secure=True
+)
