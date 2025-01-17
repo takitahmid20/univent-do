@@ -15,6 +15,7 @@ import {
   FaDownload
 } from 'react-icons/fa';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function OrganizerDashboard() {
   const router = useRouter();
@@ -152,6 +153,14 @@ export default function OrganizerDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {dashboardData?.upcoming_events?.map((event) => (
             <div key={event.id} className="bg-white border rounded-xl overflow-hidden">
+              <div className="relative w-full h-48">
+                <Image
+                  src={event.image_url || '/placeholder-event.jpg'}
+                  alt={event.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
               <div className="p-4">
                 <Link 
                   href={`/events/${event.slug}`}
