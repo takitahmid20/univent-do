@@ -1011,6 +1011,7 @@ class PublicOrganizersListView(APIView):
                             e.event_date,
                             e.venue,
                             e.address,
+                            e.image_url,
                             e.slug as event_slug,
                             ROW_NUMBER() OVER (
                                 PARTITION BY e.organizer_id 
@@ -1037,7 +1038,8 @@ class PublicOrganizersListView(APIView):
                                     'date', ue.event_date,
                                     'venue', ue.venue,
                                     'address', ue.address,
-                                    'slug', ue.event_slug
+                                    'slug', ue.event_slug,
+                                    'image_url', ue.image_url
                                 )
                                 ELSE NULL 
                             END
@@ -1154,7 +1156,8 @@ class OrganizerDetailView(APIView):
                                     'date', ue.event_date,
                                     'venue', ue.venue,
                                     'address', ue.address,
-                                    'slug', ue.event_slug
+                                    'slug', ue.event_slug,
+                                    'image_url', ue.image_url
                                 )
                                 ELSE NULL 
                             END
