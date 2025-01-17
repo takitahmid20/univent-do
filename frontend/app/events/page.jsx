@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { FaMapMarkerAlt, FaCalendarAlt, FaSearch, FaFilter, FaTimes, FaUser } from 'react-icons/fa';
 import axios from 'axios';
@@ -10,37 +10,37 @@ const EventsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-    search: '',
     category: '',
     date: '',
-    priceRange: ''
+    priceRange: '',
+    search: ''
   });
 
-  const categories = [
-    'All Categories',
-    'Conference',
-    'Workshop',
-    'Seminar',
-    'Hackathon',
-    'Meetup',
-    'Cultural'
-  ];
+  // Debounce function
+  const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  };
 
-  const dateFilters = [
-    { label: 'All Dates', value: '' },
-    { label: 'Today', value: 'today' },
-    { label: 'This Week', value: 'week' },
-    { label: 'This Month', value: 'month' }
-  ];
+  // Debounced search handler
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      setFilters(prev => ({ ...prev, search: value }));
+    }, 500),
+    []
+  );
 
-  const priceRanges = [
-    { label: 'All Prices', value: '' },
-    { label: 'Free', value: 'free' },
-    { label: 'Under ৳500', value: 'under-500' },
-    { label: '৳500 - ৳1000', value: '500-1000' },
-    { label: 'Above ৳1000', value: 'above-1000' }
-  ];
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    debouncedSearch(value);
+  };
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -58,7 +58,7 @@ const EventsPage = () => {
           ...event,
           eventDate: event.event_date,
           eventTime: event.event_time,
-          ticketPrice: event.ticket_price,
+          ticketPrice: event.ticket_price ? parseFloat(event.ticket_price) : 0,
           imageUrl: event.image_url,
           organizerImage: event.organizer_image
         }));
@@ -135,8 +135,45 @@ const EventsPage = () => {
   }, [filters]);
 
   const handleFilterChange = (key, value) => {
+    if (key === 'search') return; // Search is handled separately now
     setFilters(prev => ({ ...prev, [key]: value }));
   };
+
+  // Reset filters function
+  const resetFilters = () => {
+    setSearchTerm('');
+    setFilters({
+      search: '',
+      category: '',
+      date: '',
+      priceRange: ''
+    });
+  };
+
+  const categories = [
+    'All Categories',
+    'Conference',
+    'Workshop',
+    'Seminar',
+    'Hackathon',
+    'Meetup',
+    'Cultural'
+  ];
+
+  const dateFilters = [
+    { label: 'All Dates', value: '' },
+    { label: 'Today', value: 'today' },
+    { label: 'This Week', value: 'week' },
+    { label: 'This Month', value: 'month' }
+  ];
+
+  const priceRanges = [
+    { label: 'All Prices', value: '' },
+    { label: 'Free', value: 'free' },
+    { label: 'Under ৳500', value: 'under-500' },
+    { label: '৳500 - ৳1000', value: '500-1000' },
+    { label: 'Above ৳1000', value: 'above-1000' }
+  ];
 
   if (loading) {
     return (
@@ -206,8 +243,8 @@ const EventsPage = () => {
             <input
               type="text"
               placeholder="Search events..."
-              value={filters.search}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
+              value={searchTerm}
+              onChange={handleSearchChange}
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-[#f6405f]"
             />
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
@@ -256,12 +293,15 @@ const EventsPage = () => {
 
             {/* Clear Filters */}
             <button
-              onClick={() => setFilters({
-                search: '',
-                category: '',
-                date: '',
-                priceRange: ''
-              })}
+              onClick={() => {
+                setSearchTerm('');
+                setFilters({
+                  search: '',
+                  category: '',
+                  date: '',
+                  priceRange: ''
+                });
+              }}
               className="flex items-center justify-center gap-2 text-gray-600 hover:text-[#f6405f] transition-colors"
             >
               <FaTimes />
