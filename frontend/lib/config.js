@@ -43,4 +43,10 @@ export const API_ENDPOINTS = {
     ADMIN_LIST_ORGANIZERS: `${API_BASE_URL}/api/admin/organizers/`,
     ADMIN_DELETE_ATTENDEE: (attendeeId) => `${API_BASE_URL}/api/admin/attendees/${attendeeId}/`,
     ADMIN_DELETE_ORGANIZER: (organizerId) => `${API_BASE_URL}/api/admin/organizers/${organizerId}/`,
+
+    // Notification endpoints
+    USER_NOTIFICATIONS: `${API_BASE_URL}/api/notifications/`,
+    EVENT_NOTIFICATIONS: `${API_BASE_URL}/api/notifications/events`,
+    NOTIFICATION_UNREAD_COUNT: `${API_BASE_URL}/api/notifications/unread-count/`,
+    MARK_NOTIFICATION_READ: `${API_BASE_URL}/api/notifications/mark-read`,
 };

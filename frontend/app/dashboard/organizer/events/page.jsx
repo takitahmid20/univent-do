@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import { FaCalendar, FaMapMarkerAlt, FaUsers, FaEdit, FaTrash } from 'react-icons/fa';
 import { API_ENDPOINTS } from '@/lib/config';
 
+import { FaBell } from 'react-icons/fa';
+import NotificationModal from '@/app/components/NotificationModal';
+
 export default function EventsPage() {
   const router = useRouter();
   const [viewMode, setViewMode] = useState('grid');
@@ -91,6 +94,8 @@ export default function EventsPage() {
   };
 
   const EventCard = ({ event, onDelete }) => {
+    const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  
     return (
       <div className="bg-white rounded-lg shadow p-4">
         <div className="relative h-48 mb-4">
@@ -145,7 +150,7 @@ export default function EventsPage() {
             </p>
           )}
         </div>
-
+  
         <div className="flex flex-col gap-2 mt-4">
           <div className="flex justify-between items-center">
             <span className="font-bold text-[#f6405f]">
@@ -166,23 +171,32 @@ export default function EventsPage() {
               </button>
             </div>
           </div>
-
+  
           <div className="flex gap-2 mt-2">
             <Link 
               href={`/dashboard/organizer/attendees?eventId=${event.id}`}
-              className="flex-1 text-center px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm"
+              className="flex-1 text-center px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm flex items-center justify-center"
             >
-              <FaUsers className="inline-block mr-1" />
+              <FaUsers className="mr-1" />
               View Attendees
             </Link>
-            <Link 
-              href={`/dashboard/organizer/events/${event.id}/scan`}
-              className="flex-1 text-center px-3 py-2 bg-[#f6405f] text-white hover:bg-[#d63850] rounded text-sm"
+            <button
+              onClick={() => setIsNotificationModalOpen(true)}
+              className="flex-1 text-center px-3 py-2 bg-[#f6405f] text-white hover:bg-[#d63850] rounded text-sm flex items-center justify-center"
             >
-              Scan QR
-            </Link>
+              <FaBell className="mr-1" />
+              Send Notification
+            </button>
+            
           </div>
         </div>
+  
+        {/* Notification Modal */}
+        <NotificationModal
+          eventId={event.id}
+          isOpen={isNotificationModalOpen}
+          onClose={() => setIsNotificationModalOpen(false)}
+        />
       </div>
     );
   };

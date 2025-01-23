@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
@@ -19,6 +19,9 @@ import {
   FaRegBell,
   FaSpinner
 } from 'react-icons/fa';
+import NotificationPanel from '@/app/components/NotificationPanel';
+
+
 
 // Navigation for different roles
 const navigationLinks = {
@@ -147,8 +150,15 @@ const DashboardLayout = ({ children, userRole = 'user' }) => {
   const [currentRole, setCurrentRole] = useState(userRole);
   const pathname = usePathname();
   const router = useRouter();
+  // Inside your DashboardLayout component
+const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
+const [unreadCount, setUnreadCount] = useState(0);
+const notificationRef = useRef(null);
 
   useEffect(() => {
+    // Fetch unread count when component mounts
+    fetchUnreadCount();
+
     const checkAuth = () => {
       const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
@@ -172,9 +182,34 @@ const DashboardLayout = ({ children, userRole = 'user' }) => {
         router.replace('/signin');
       }
     };
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setIsNotificationPanelOpen(false);
+      }
+    };
 
     checkAuth();
+    document.addEventListener('mousedown', handleClickOutside);
+  return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [userRole, router]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(API_ENDPOINTS.NOTIFICATION_UNREAD_COUNT, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadCount(data.unread_count || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -288,10 +323,23 @@ const DashboardLayout = ({ children, userRole = 'user' }) => {
             )}
             
             {/* Notifications */}
-            <button className="relative p-2">
-              <FaRegBell className="w-6 h-6 text-gray-400" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
+           
+            <div className="relative" ref={notificationRef}>
+  <button 
+    className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
+    onClick={() => setIsNotificationPanelOpen(!isNotificationPanelOpen)}
+  >
+    <FaRegBell className="w-6 h-6 text-gray-400" />
+    {unreadCount > 0 && (
+      <span className="absolute top-1 right-1 w-2 h-2 bg-[#f6405f] rounded-full"></span>
+    )}
+  </button>
+  
+  <NotificationPanel 
+    isOpen={isNotificationPanelOpen}
+    onClose={() => setIsNotificationPanelOpen(false)}
+  />
+</div>
           </div>
         </header>
 
