@@ -208,7 +208,8 @@ export default function UserDashboard() {
     status: event.status,
     qr_code: event.qr_code,
     ticket_pdf: event.ticket_pdf,
-    checked_in: event.checked_in
+    checked_in: event.checked_in,
+    image_url: event.image_url
   }));
   
   // Keep the past events filtering as is
@@ -278,47 +279,62 @@ export default function UserDashboard() {
         <div className="grid grid-cols-1 gap-6">
           {upcomingEvents.map((event) => (
             <div key={event.id} className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">{event.event.title}</h3>
-                  <div className="space-y-2">
-                    <p className="text-gray-600">
-                      <FaCalendarAlt className="inline-block mr-2" />
-                      {formatDate(event.event.event_date)} at {formatTime(event.event.event_time)}
-                    </p>
-                    <p className="text-gray-600">
-                      <FaChair className="inline-block mr-2" />
-                      {event.number_of_seats} seats
-                    </p>
-                    <p className="text-gray-600">
-                      Total Amount: ৳{event.total_amount}
-                    </p>
-                    <div className="flex gap-2 mt-2">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm
-                        ${event.checked_in ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}
-                      >
-                        {event.checked_in ? 'Checked In' : 'Not Checked In'}
-                      </span>
+              <div className="flex items-start gap-6">
+                {event.image_url ? (
+                  <img
+                    src={event.image_url}
+                    alt={event.event.title}
+                    className="w-32 h-32 object-cover rounded-lg flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FaCalendarAlt className="text-gray-400 text-3xl" />
+                  </div>
+                )}
+                <div className="flex-grow">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">{event.event.title}</h3>
+                      <div className="space-y-2">
+                        <p className="text-gray-600">
+                          <FaCalendarAlt className="inline-block mr-2" />
+                          {formatDate(event.event.event_date)} at {formatTime(event.event.event_time)}
+                        </p>
+                        <p className="text-gray-600">
+                          <FaChair className="inline-block mr-2" />
+                          {event.number_of_seats} seats
+                        </p>
+                        <p className="text-gray-600">
+                          Total Amount: ৳{event.total_amount}
+                        </p>
+                        <div className="flex gap-2 mt-2">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm
+                            ${event.checked_in ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}
+                          >
+                            {event.checked_in ? 'Checked In' : 'Not Checked In'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      {event.qr_code && (
+                        <button
+                          onClick={() => handleShowQR(event)}
+                          className="text-blue-600 hover:text-blue-800 p-2"
+                        >
+                          <FaQrcode className="w-5 h-5" />
+                        </button>
+                      )}
+                      {event.ticket_pdf && (
+                        <button
+                          onClick={() => downloadTicket(event.ticket_pdf, event.event.title)}
+                          className="text-green-600 hover:text-green-800 p-2"
+                        >
+                          <FaDownload className="w-5 h-5" />
+                        </button>
+                      )}
                     </div>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  {event.qr_code && (
-                    <button
-                      onClick={() => handleShowQR(event)}
-                      className="text-blue-600 hover:text-blue-800 p-2"
-                    >
-                      <FaQrcode className="w-5 h-5" />
-                    </button>
-                  )}
-                  {event.ticket_pdf && (
-                    <button
-                      onClick={() => downloadTicket(event.ticket_pdf, event.event.title)}
-                      className="text-green-600 hover:text-green-800 p-2"
-                    >
-                      <FaDownload className="w-5 h-5" />
-                    </button>
-                  )}
                 </div>
               </div>
             </div>

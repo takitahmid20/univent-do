@@ -1078,6 +1078,7 @@ class UserDashboardView(APIView):
                         e.event_time,
                         e.venue,
                         e.max_attendees,
+                        e.image_url,
                         er.number_of_seats as booked_seats,
                         er.qr_code,
                         er.ticket_pdf,
@@ -1103,12 +1104,13 @@ class UserDashboardView(APIView):
                         'event_time': str(row[3]),
                         'venue': row[4],
                         'max_attendees': row[5],
-                        'booked_seats': row[6],
-                        'qr_code': row[7],
-                        'ticket_pdf': row[8],
-                        'total_amount': float(row[9]),
-                        'status': row[10],
-                        'checked_in': row[11],
+                        'image_url': row[6],
+                        'booked_seats': row[7],
+                        'qr_code': row[8],
+                        'ticket_pdf': row[9],
+                        'total_amount': float(row[10]),
+                        'status': row[11],
+                        'checked_in': row[12],
                         'event_datetime': event_datetime.isoformat()
                     })
 
