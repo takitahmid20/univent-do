@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '@/lib/config';
 import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
+import { FaTimes } from 'react-icons/fa';
 
 export default function NotificationPanel({ isOpen, onClose }) {
   const [notifications, setNotifications] = useState([]);
@@ -61,10 +62,9 @@ export default function NotificationPanel({ isOpen, onClose }) {
   const markAsRead = async (notificationId) => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
+      if (!token) return;
 
+      console.log('Marking notification as read:', notificationId);
       const response = await fetch(API_ENDPOINTS.MARK_NOTIFICATION_READ(notificationId), {
         method: 'POST',
         headers: {
@@ -77,13 +77,13 @@ export default function NotificationPanel({ isOpen, onClose }) {
       }
 
       // Update local state
-      setNotifications(notifications.map(notif => 
-        notif.id === notificationId ? { ...notif, is_read: true } : notif
+      setNotifications(prev => prev.map(notification => 
+        notification.id === notificationId 
+          ? { ...notification, is_read: true }
+          : notification
       ));
       setUnreadCount(prev => Math.max(0, prev - 1));
 
-      // Trigger parent component update
-      window.dispatchEvent(new CustomEvent('notificationUpdate'));
     } catch (error) {
       console.error('Error marking notification as read:', error);
       toast.error('Failed to mark notification as read');
@@ -93,63 +93,91 @@ export default function NotificationPanel({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg py-2 z-50">
-      <div className="px-4 py-2 border-b border-gray-100">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Notifications</h3>
-          {unreadCount > 0 && (
-            <span className="text-sm text-[#f6405f] font-medium">
-              {unreadCount} unread
+    <div className={`fixed inset-y-0 right-0 w-96 bg-white shadow-lg transform ${
+      isOpen ? 'translate-x-0' : 'translate-x-full'
+    } transition-transform duration-300 ease-in-out z-50`}>
+      <div className="h-full flex flex-col">
+        <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center bg-white">
+          <h2 className="text-lg font-semibold flex items-center">
+            <span className="relative">
+              Notifications
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-6 bg-[#f6405f] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
             </span>
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <FaTimes />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#f6405f]"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-4 text-red-500">{error}</div>
+          ) : (
+            <div className="space-y-2 p-2">
+              {notifications && notifications.length > 0 ? (
+                notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    onClick={() => !notification.is_read && markAsRead(notification.id)}
+                    className={`border rounded-lg p-4 hover:bg-gray-50 transition-colors ${
+                      !notification.is_read ? 'border-[#f6405f] bg-pink-50 cursor-pointer' : 'border-gray-200'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium text-gray-900">{notification.title}</h4>
+                          <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${
+                            notification.type === 'important' ? 'bg-red-100 text-red-800' :
+                            notification.type === 'update' ? 'bg-blue-100 text-blue-800' :
+                            notification.type === 'reminder' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {notification.type}
+                          </span>
+                        </div>
+                        {notification.event && (
+                          <div className="text-sm text-[#f6405f] mb-1">
+                            Event: {notification.event.title}
+                          </div>
+                        )}
+                        <p className="text-gray-600">{notification.message}</p>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
+                      <div className="flex flex-col">
+                        <span>
+                          {new Date(notification.created_at).toLocaleDateString()} {new Date(notification.created_at).toLocaleTimeString()}
+                        </span>
+                        {notification.sender && (
+                          <span className="text-gray-400">
+                            From: {notification.sender.username}
+                          </span>
+                        )}
+                      </div>
+                      {!notification.is_read && (
+                        <span className="text-[#f6405f] font-medium">New</span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">No notifications yet</p>
+              )}
+            </div>
           )}
         </div>
-      </div>
-
-      <div className="max-h-[400px] overflow-y-auto">
-        {isLoading ? (
-          <div className="flex justify-center items-center py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#f6405f]"></div>
-          </div>
-        ) : error ? (
-          <div className="text-center py-4 text-red-500">{error}</div>
-        ) : notifications.length > 0 ? (
-          notifications.map((notification) => (
-            <div
-              key={notification.id}
-              className={`px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0 ${
-                !notification.is_read ? 'bg-red-50' : ''
-              }`}
-              onClick={() => !notification.is_read && markAsRead(notification.id)}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <p className={`font-medium text-sm ${!notification.is_read ? 'text-[#f6405f]' : ''}`}>
-                    {notification.title}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs text-gray-500">
-                      {format(new Date(notification.created_at), 'MMM d, yyyy h:mm a')}
-                    </span>
-                    {notification.event_title && (
-                      <>
-                        <span className="text-xs text-gray-400">•</span>
-                        <span className="text-xs text-gray-500">{notification.event_title}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-                {!notification.is_read && (
-                  <span className="w-2 h-2 bg-[#f6405f] rounded-full mt-2"></span>
-                )}
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-6 text-gray-500">
-            No notifications yet
-          </div>
-        )}
       </div>
     </div>
   );
