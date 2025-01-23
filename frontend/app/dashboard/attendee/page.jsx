@@ -9,9 +9,11 @@ import {
   FaSignOutAlt,
   FaQrcode,
   FaDownload,
-  FaChair
+  FaChair,
+  FaFileAlt
 } from 'react-icons/fa';
 import { API_ENDPOINTS } from '@/lib/config';
+import { jsPDF } from 'jspdf';
 
 // QR Code Modal Component
 function QRCodeModal({ isOpen, onClose, qrCode, eventTitle }) {
@@ -182,6 +184,30 @@ export default function UserDashboard() {
     }
   };
 
+  const generateEventPDF = (event) => {
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(20);
+    doc.text(event.event.title, 20, 20);
+    
+    // Add event details
+    doc.setFontSize(12);
+    doc.text(`Date: ${formatDate(event.event.event_date)}`, 20, 40);
+    doc.text(`Time: ${formatTime(event.event.event_time)}`, 20, 50);
+    doc.text(`Venue: ${event.event.venue}`, 20, 60);
+    doc.text(`Number of Seats: ${event.number_of_seats}`, 20, 70);
+    doc.text(`Total Amount: ৳${event.total_amount}`, 20, 80);
+    
+    // Add QR Code if available
+    if (event.qr_code) {
+      doc.addImage(event.qr_code, 'PNG', 20, 100, 50, 50);
+    }
+    
+    // Save the PDF
+    doc.save(`${event.event.title}-ticket.pdf`);
+  };
+
   if (loading) {
     return <div className="flex justify-center items-center min-h-screen">
       <p className="text-gray-500">Loading...</p>
@@ -333,6 +359,13 @@ export default function UserDashboard() {
                           <FaDownload className="w-5 h-5" />
                         </button>
                       )}
+                      <button
+                        onClick={() => generateEventPDF(event)}
+                        className="text-purple-600 hover:text-purple-800 p-2"
+                        title="Generate PDF Ticket"
+                      >
+                        <FaFileAlt className="w-5 h-5" />
+                      </button>
                     </div>
                   </div>
                 </div>
