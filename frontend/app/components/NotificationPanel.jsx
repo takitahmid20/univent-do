@@ -90,6 +90,36 @@ export default function NotificationPanel({ isOpen, onClose }) {
     }
   };
 
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      console.log('Marking all notifications as read');
+      const response = await fetch(API_ENDPOINTS.MARK_ALL_NOTIFICATIONS_READ, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to mark all notifications as read');
+      }
+
+      // Update local state
+      setNotifications(prev => prev.map(notification => ({ ...notification, is_read: true })));
+      setUnreadCount(0);
+      toast.success('All notifications marked as read');
+
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      toast.error('Failed to mark all notifications as read');
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -108,12 +138,22 @@ export default function NotificationPanel({ isOpen, onClose }) {
               )}
             </span>
           </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <FaTimes />
-          </button>
+          <div className="flex items-center gap-3">
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                className="text-sm text-[#f6405f] hover:text-[#d63850] font-medium"
+              >
+                Mark all as read
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <FaTimes />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto">

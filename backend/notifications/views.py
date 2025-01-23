@@ -236,3 +236,35 @@ class EventNotificationView(APIView):
             return Response({
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class MarkAllReadView(APIView):
+    @token_required
+    def post(self, request):
+        """Mark all notifications as read for the current user"""
+        try:
+            user_id = request.user.get('user_id')
+            if not user_id:
+                return Response({
+                    'error': 'User ID not found'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    UPDATE notifications
+                    SET is_read = true
+                    WHERE recipient_id = %s AND is_read = false
+                    RETURNING id;
+                """, [user_id])
+                
+                updated_ids = [row[0] for row in cursor.fetchall()]
+                
+                return Response({
+                    'message': f'Marked {len(updated_ids)} notifications as read',
+                    'updated_count': len(updated_ids)
+                }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error marking all notifications as read: {str(e)}")
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

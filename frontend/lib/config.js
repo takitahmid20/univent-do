@@ -51,6 +51,7 @@ export const API_ENDPOINTS = {
     USER_NOTIFICATIONS: `${API_BASE_URL}/api/notifications/`,
     NOTIFICATION_UNREAD_COUNT: `${API_BASE_URL}/api/notifications/unread-count/`,
     MARK_NOTIFICATION_READ: (notificationId) => `${API_BASE_URL}/api/notifications/read/${notificationId}/`,
+    MARK_ALL_NOTIFICATIONS_READ: `${API_BASE_URL}/api/notifications/mark-all-read/`,
     EVENT_NOTIFICATIONS: (eventId) => `${API_BASE_URL}/api/notifications/event/${eventId}/list/`,
     SEND_EVENT_NOTIFICATION: (eventId) => `${API_BASE_URL}/api/notifications/event/${eventId}/`,
 };

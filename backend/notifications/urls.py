@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     NotificationsView, NotificationReadView, UnreadCountView,
-    EventNotificationView
+    EventNotificationView, MarkAllReadView
 )
 
 urlpatterns = [
@@ -10,4 +10,5 @@ urlpatterns = [
     path('unread-count/', UnreadCountView.as_view(), name='unread-count'),
     path('event/<uuid:event_id>/', EventNotificationView.as_view(), name='event-notification'),
     path('event/<uuid:event_id>/list/', NotificationsView.as_view(), name='event-notifications-list'),
+    path('mark-all-read/', MarkAllReadView.as_view(), name='mark_all_read'),
 ]
