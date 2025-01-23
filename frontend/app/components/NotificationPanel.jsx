@@ -28,18 +28,26 @@ export default function NotificationPanel({ isOpen, onClose }) {
         throw new Error('No authentication token found');
       }
 
+      console.log('Fetching user notifications...');
       const response = await fetch(API_ENDPOINTS.USER_NOTIFICATIONS, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
+      const data = await response.json();
+      console.log('Fetched notifications:', data);
+
       if (!response.ok) {
-        throw new Error('Failed to fetch notifications');
+        throw new Error(data.error || 'Failed to fetch notifications');
       }
 
-      const data = await response.json();
-      setNotifications(data.notifications || []);
+      // Sort notifications by date (newest first)
+      const sortedNotifications = (data.notifications || []).sort((a, b) => {
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+
+      setNotifications(sortedNotifications);
       setUnreadCount(data.unread_count || 0);
     } catch (error) {
       console.error('Error fetching notifications:', error);

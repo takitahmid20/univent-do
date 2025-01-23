@@ -28,20 +28,36 @@ export default function NotificationModal({ eventId, isOpen, onClose }) {
         throw new Error('No authentication token found');
       }
 
+      console.log('Fetching notifications for event:', eventId);
       const response = await fetch(API_ENDPOINTS.EVENT_NOTIFICATIONS(eventId), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
+      const data = await response.json();
+      console.log('Fetched notifications:', data);
+
       if (!response.ok) {
-        throw new Error('Failed to fetch notifications');
+        throw new Error(data.error || 'Failed to fetch notifications');
       }
 
-      const data = await response.json();
-      setNotifications(data.notifications || []);
+      // Remove duplicates by ID and sort by created_at
+      const uniqueNotifications = Array.from(
+        new Map(
+          (data.notifications || [])
+            .map(notification => [notification.id, notification])
+        ).values()
+      ).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      console.log('Unique notifications:', uniqueNotifications.length);
+      uniqueNotifications.forEach(n => 
+        console.log(`Notification: ${n.id} - ${n.title} - ${n.created_at}`)
+      );
+
+      setNotifications(uniqueNotifications);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching notifications:', error);
       setError(error.message);
       toast.error(error.message);
     }
@@ -58,18 +74,30 @@ export default function NotificationModal({ eventId, isOpen, onClose }) {
         throw new Error('No authentication token found');
       }
 
+      console.log('Sending notification:', {
+        title: newNotification.title,
+        message: newNotification.message,
+        notification_type: newNotification.type
+      });
+
       const response = await fetch(API_ENDPOINTS.SEND_EVENT_NOTIFICATION(eventId), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newNotification),
+        body: JSON.stringify({
+          title: newNotification.title,
+          message: newNotification.message,
+          notification_type: newNotification.type
+        }),
       });
 
+      const data = await response.json();
+      console.log('Server response:', data);
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to send notification');
+        throw new Error(data.error || data.message || 'Failed to send notification');
       }
 
       // Clear form and refresh notifications
@@ -78,13 +106,17 @@ export default function NotificationModal({ eventId, isOpen, onClose }) {
         message: '',
         type: 'general'
       });
-      fetchNotifications();
-      toast.success('Notification sent successfully');
+
+      console.log('Refreshing notifications...');
+      await fetchNotifications();
+      
+      toast.success(data.message || 'Notification sent successfully');
       
       // Trigger notification update
       window.dispatchEvent(new CustomEvent('notificationUpdate'));
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error sending notification:', error);
+      console.error('Full error details:', error.message);
       setError(error.message);
       toast.error(error.message);
     } finally {
@@ -186,7 +218,7 @@ export default function NotificationModal({ eventId, isOpen, onClose }) {
         <div>
           <h3 className="font-semibold text-lg mb-4">Previous Messages</h3>
           <div className="space-y-4 max-h-60 overflow-y-auto">
-            {notifications.length > 0 ? (
+            {notifications && notifications.length > 0 ? (
               notifications.map((notification) => (
                 <div
                   key={notification.id}
@@ -200,28 +232,24 @@ export default function NotificationModal({ eventId, isOpen, onClose }) {
                       <p className="text-gray-600 mt-1">{notification.message}</p>
                     </div>
                     <span className={`ml-2 text-xs px-2 py-1 rounded-full whitespace-nowrap ${
-                      notification.type === 'important' ? 'bg-red-100 text-red-800' :
-                      notification.type === 'update' ? 'bg-blue-100 text-blue-800' :
-                      notification.type === 'reminder' ? 'bg-yellow-100 text-yellow-800' :
+                      notification.notification_type === 'important' ? 'bg-red-100 text-red-800' :
+                      notification.notification_type === 'update' ? 'bg-blue-100 text-blue-800' :
+                      notification.notification_type === 'reminder' ? 'bg-yellow-100 text-yellow-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
-                      {notification.type}
+                      {notification.notification_type}
                     </span>
                   </div>
                   <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
                     <span>
-                      From: {notification.sender_name || notification.sender_email || 'System'}
+                      {new Date(notification.created_at).toLocaleDateString()} {new Date(notification.created_at).toLocaleTimeString()}
                     </span>
-                    <span>
-                      {new Date(notification.created_at).toLocaleString()}
-                    </span>
+                    {!notification.is_read && <span className="text-[#f6405f] font-medium">New</span>}
                   </div>
                 </div>
               ))
             ) : (
-              <div className="text-center text-gray-500 py-8 border rounded-lg">
-                No messages sent yet
-              </div>
+              <p className="text-gray-500 text-center py-4">No notifications yet</p>
             )}
           </div>
         </div>
