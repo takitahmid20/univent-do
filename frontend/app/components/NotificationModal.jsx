@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { FaTimes, FaBell } from 'react-icons/fa';
 import { API_ENDPOINTS } from '@/lib/config';
+import { toast } from 'react-hot-toast';
 
 export default function NotificationModal({ eventId, isOpen, onClose }) {
   const [notifications, setNotifications] = useState([]);
@@ -23,7 +24,11 @@ export default function NotificationModal({ eventId, isOpen, onClose }) {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_ENDPOINTS.EVENT_NOTIFICATIONS}/${eventId}`, {
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(API_ENDPOINTS.EVENT_NOTIFICATIONS(eventId), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -38,6 +43,7 @@ export default function NotificationModal({ eventId, isOpen, onClose }) {
     } catch (error) {
       console.error('Error:', error);
       setError(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -48,24 +54,39 @@ export default function NotificationModal({ eventId, isOpen, onClose }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_ENDPOINTS.EVENT_NOTIFICATIONS}/${eventId}`, {
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(API_ENDPOINTS.SEND_EVENT_NOTIFICATION(eventId), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newNotification)
+        body: JSON.stringify(newNotification),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send notification');
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to send notification');
       }
 
       // Clear form and refresh notifications
-      setNewNotification({ title: '', message: '', type: 'general' });
-      await fetchNotifications();
+      setNewNotification({
+        title: '',
+        message: '',
+        type: 'general'
+      });
+      fetchNotifications();
+      toast.success('Notification sent successfully');
+      
+      // Trigger notification update
+      window.dispatchEvent(new CustomEvent('notificationUpdate'));
     } catch (error) {
+      console.error('Error:', error);
       setError(error.message);
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -148,41 +169,58 @@ export default function NotificationModal({ eventId, isOpen, onClose }) {
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-6 w-full bg-[#f6405f] text-white py-2 px-4 rounded-lg hover:bg-[#d63350] transition-colors disabled:opacity-50"
+            className="mt-6 w-full bg-[#f6405f] text-white py-2 px-4 rounded-lg hover:bg-[#d63350] transition-colors disabled:opacity-50 flex items-center justify-center"
           >
-            {isLoading ? 'Sending...' : 'Send Notification'}
+            {isLoading ? (
+              <>
+                <FaBell className="animate-spin mr-2" />
+                Sending...
+              </>
+            ) : (
+              'Send Notification'
+            )}
           </button>
         </form>
 
         {/* Previous Notifications */}
         <div>
-          <h3 className="font-semibold text-lg mb-4">Previous Notifications</h3>
+          <h3 className="font-semibold text-lg mb-4">Previous Messages</h3>
           <div className="space-y-4 max-h-60 overflow-y-auto">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className="border rounded-lg p-4 hover:bg-gray-50"
-              >
-                <div className="flex justify-between items-start">
-                  <h4 className="font-medium">{notification.title}</h4>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    notification.type === 'important' ? 'bg-red-100 text-red-800' :
-                    notification.type === 'update' ? 'bg-blue-100 text-blue-800' :
-                    notification.type === 'reminder' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {notification.type}
-                  </span>
+            {notifications.length > 0 ? (
+              notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className={`border rounded-lg p-4 hover:bg-gray-50 transition-colors ${
+                    !notification.is_read ? 'border-[#f6405f] bg-pink-50' : 'border-gray-200'
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900">{notification.title}</h4>
+                      <p className="text-gray-600 mt-1">{notification.message}</p>
+                    </div>
+                    <span className={`ml-2 text-xs px-2 py-1 rounded-full whitespace-nowrap ${
+                      notification.type === 'important' ? 'bg-red-100 text-red-800' :
+                      notification.type === 'update' ? 'bg-blue-100 text-blue-800' :
+                      notification.type === 'reminder' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {notification.type}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
+                    <span>
+                      From: {notification.sender_name || notification.sender_email || 'System'}
+                    </span>
+                    <span>
+                      {new Date(notification.created_at).toLocaleString()}
+                    </span>
+                  </div>
                 </div>
-                <p className="text-gray-600 mt-2">{notification.message}</p>
-                <div className="mt-2 text-xs text-gray-500">
-                  Sent: {new Date(notification.created_at).toLocaleString()}
-                </div>
-              </div>
-            ))}
-            {notifications.length === 0 && (
-              <div className="text-center text-gray-500 py-4">
-                No notifications sent yet
+              ))
+            ) : (
+              <div className="text-center text-gray-500 py-8 border rounded-lg">
+                No messages sent yet
               </div>
             )}
           </div>

@@ -5,16 +5,15 @@ from rest_framework import status
 from django.db import connection
 from .db_manager import (
     create_notification, get_user_notifications, mark_notification_as_read,
-    get_unread_count, create_event_notification
+    get_unread_count, create_event_notification, get_event_notifications
 )
-from accounts.decorators import token_required
+from accounts.middleware import token_required
 
 # Create your views here.
 
 class NotificationsView(APIView):
     @token_required
-    def get(self, request):
-        """Get notifications for the logged-in user"""
+    def get(self, request, event_id=None):
         try:
             user_id = request.user.get('user_id')
             if not user_id:
@@ -22,14 +21,17 @@ class NotificationsView(APIView):
                     'error': 'User ID not found'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            limit = int(request.GET.get('limit', 10))
-            offset = int(request.GET.get('offset', 0))
-
-            notifications = get_user_notifications(user_id, limit, offset)
+            if event_id:
+                # Get notifications for a specific event
+                notifications = get_event_notifications(event_id)
+            else:
+                # Get all notifications for the user
+                notifications = get_user_notifications(user_id)
+            
             return Response({
-                'notifications': notifications
+                'notifications': notifications,
+                'unread_count': get_unread_count(user_id)
             }, status=status.HTTP_200_OK)
-
         except Exception as e:
             return Response({
                 'error': str(e)

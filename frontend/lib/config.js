@@ -1,5 +1,8 @@
 // Backend API configuration
-export const API_BASE_URL = 'https://univent-backend.onrender.com';
+const isDevelopment = process.env.NODE_ENV === 'development';
+export const API_BASE_URL = isDevelopment 
+    ? 'http://localhost:5656'
+    : 'https://univent-backend.onrender.com';
 
 // API endpoints
 export const API_ENDPOINTS = {
@@ -46,7 +49,8 @@ export const API_ENDPOINTS = {
 
     // Notification endpoints
     USER_NOTIFICATIONS: `${API_BASE_URL}/api/notifications/`,
-    EVENT_NOTIFICATIONS: `${API_BASE_URL}/api/notifications/events`,
     NOTIFICATION_UNREAD_COUNT: `${API_BASE_URL}/api/notifications/unread-count/`,
-    MARK_NOTIFICATION_READ: `${API_BASE_URL}/api/notifications/mark-read`,
+    MARK_NOTIFICATION_READ: (notificationId) => `${API_BASE_URL}/api/notifications/read/${notificationId}/`,
+    EVENT_NOTIFICATIONS: (eventId) => `${API_BASE_URL}/api/notifications/event/${eventId}/list/`,
+    SEND_EVENT_NOTIFICATION: (eventId) => `${API_BASE_URL}/api/notifications/event/${eventId}/`,
 };

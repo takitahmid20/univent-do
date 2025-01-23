@@ -19,6 +19,7 @@ import {
   FaRegBell,
   FaSpinner
 } from 'react-icons/fa';
+import { API_ENDPOINTS } from '@/lib/config';
 import NotificationPanel from '@/app/components/NotificationPanel';
 
 
@@ -155,10 +156,48 @@ const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
 const [unreadCount, setUnreadCount] = useState(0);
 const notificationRef = useRef(null);
 
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch(API_ENDPOINTS.NOTIFICATION_UNREAD_COUNT, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch unread count');
+      }
+
+      const data = await response.json();
+      setUnreadCount(data.unread_count || 0);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
+
   useEffect(() => {
     // Fetch unread count when component mounts
     fetchUnreadCount();
 
+    // Set up notification update listener
+    const handleNotificationUpdate = () => {
+      fetchUnreadCount();
+    };
+    window.addEventListener('notificationUpdate', handleNotificationUpdate);
+
+    // Set up polling for unread count
+    const interval = setInterval(fetchUnreadCount, 30000); // Check every 30 seconds
+
+    return () => {
+      window.removeEventListener('notificationUpdate', handleNotificationUpdate);
+      clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
     const checkAuth = () => {
       const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
@@ -182,6 +221,7 @@ const notificationRef = useRef(null);
         router.replace('/signin');
       }
     };
+
     const handleClickOutside = (event) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target)) {
         setIsNotificationPanelOpen(false);
@@ -190,26 +230,11 @@ const notificationRef = useRef(null);
 
     checkAuth();
     document.addEventListener('mousedown', handleClickOutside);
-  return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [userRole, router]);
 
-  const fetchUnreadCount = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(API_ENDPOINTS.NOTIFICATION_UNREAD_COUNT, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        setUnreadCount(data.unread_count || 0);
-      }
-    } catch (error) {
-      console.error('Error fetching unread count:', error);
-    }
-  };
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [userRole, router]);
 
   if (isLoading) {
     return (
@@ -323,23 +348,24 @@ const notificationRef = useRef(null);
             )}
             
             {/* Notifications */}
-           
             <div className="relative" ref={notificationRef}>
-  <button 
-    className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
-    onClick={() => setIsNotificationPanelOpen(!isNotificationPanelOpen)}
-  >
-    <FaRegBell className="w-6 h-6 text-gray-400" />
-    {unreadCount > 0 && (
-      <span className="absolute top-1 right-1 w-2 h-2 bg-[#f6405f] rounded-full"></span>
-    )}
-  </button>
-  
-  <NotificationPanel 
-    isOpen={isNotificationPanelOpen}
-    onClose={() => setIsNotificationPanelOpen(false)}
-  />
-</div>
+              <button 
+                className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
+                onClick={() => setIsNotificationPanelOpen(!isNotificationPanelOpen)}
+              >
+                <FaRegBell className="w-6 h-6 text-gray-600" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#f6405f] text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </button>
+              
+              <NotificationPanel 
+                isOpen={isNotificationPanelOpen}
+                onClose={() => setIsNotificationPanelOpen(false)}
+              />
+            </div>
           </div>
         </header>
 

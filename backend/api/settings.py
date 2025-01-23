@@ -80,7 +80,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',
     'events',
-    'admin',
+    'admin.apps.AdminConfig',
     'notifications',
 ]
 

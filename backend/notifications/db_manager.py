@@ -169,3 +169,29 @@ def create_event_notification(event_id, sender_id):
     except Exception as e:
         logger.error(f"Error creating event notifications: {str(e)}")
         raise e
+
+def get_event_notifications(event_id):
+    """Get all notifications for a specific event"""
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT 
+                n.id, n.title, n.message, n.notification_type, n.created_at, n.is_read,
+                u.username as sender_name, u.email as sender_email
+            FROM notifications n
+            LEFT JOIN users u ON n.sender_id = u.id
+            WHERE n.event_id = %s
+            ORDER BY n.created_at DESC
+        """, [event_id])
+        
+        columns = [col[0] for col in cursor.description]
+        notifications = [
+            dict(zip(columns, row))
+            for row in cursor.fetchall()
+        ]
+        
+        # Convert datetime to string for JSON serialization
+        for notification in notifications:
+            notification['created_at'] = notification['created_at'].isoformat()
+            notification['id'] = str(notification['id'])  # Convert UUID to string
+        
+        return notifications
