@@ -80,6 +80,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',
     'events',
+    'admin',
+    'notifications',
 ]
 
 REST_FRAMEWORK = {
