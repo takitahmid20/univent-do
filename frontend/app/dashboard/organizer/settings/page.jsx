@@ -426,7 +426,7 @@ export default function SettingsPage() {
   };
 
   const handleCopyUrl = async () => {
-    const url = `https://univent-frontend.vercel.app/organizers/${formData.slug}`;
+    const url = `https://myunivent.com/organizers/${formData.slug}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopySuccess(true);
@@ -518,7 +518,7 @@ export default function SettingsPage() {
             </label>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-0">
               <div className="flex-shrink-0 px-3 py-2 bg-gray-50 border border-r-0 border-gray-300 rounded-l-lg text-gray-500 text-sm break-all">
-                https://univent-frontend.vercel.app/organizers/
+                https://myunivent.com/organizers/
               </div>
               <div className="flex flex-1 min-w-0">
                 <input

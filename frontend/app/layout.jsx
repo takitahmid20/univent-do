@@ -8,8 +8,8 @@ const roboto = Roboto({
 });
 
 export const metadata = {
-  title: 'My Web App',
-  description: 'This is my Next.js Web App',
+  title: 'Univent',
+  description: 'Scan, Check-In, Connect with Univent',
 };
 
 export default function RootLayout({ children }) {
