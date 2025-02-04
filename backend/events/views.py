@@ -18,7 +18,7 @@ from io import BytesIO
 from PIL import Image
 
 from accounts.middleware import token_required
-from .db_manager import create_event, get_event, get_organizer_events, update_event, delete_event, register_for_event, get_registration_details, get_organizer_events_with_registrations, get_event_registrations, update_event_by_slug, get_event_by_slug, get_user_registered_events, process_check_in, get_event_participants, get_organizer_dashboard, get_user_event_statistics
+from .db_manager import create_event, get_event, get_organizer_events, update_event, delete_event, register_for_event, get_registration_details, get_organizer_events_with_registrations, get_event_registrations, update_event_by_slug, get_event_by_slug, get_user_registered_events, process_check_in, get_event_participants, get_organizer_dashboard, get_user_event_statistics, check_user_registration
 
 from django.http import HttpResponse
 from .ticket_generator import generate_ticket_pdf
@@ -1273,3 +1273,11 @@ class ToggleCheckInView(APIView):
             return Response({
                 'error': 'Failed to toggle check-in status'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CheckRegistrationView(APIView):
+    @permission_classes([IsAuthenticated])
+    def get(self, request, event_id):
+        user_id = request.user.id
+        is_registered = check_user_registration(event_id, user_id)
+        return Response({'is_registered': is_registered}, status=status.HTTP_200_OK)

@@ -3,6 +3,8 @@ import EventDetails from '@/components/events/EventDetails';
 import { notFound } from 'next/navigation';
 import { API_ENDPOINTS, API_BASE_URL } from '@/lib/config';
 
+
+
 const getEventBySlug = async (slug) => {
   try {
     console.log('Fetching event with slug:', slug);
@@ -23,10 +25,28 @@ const getEventBySlug = async (slug) => {
   }
 };
 
+const checkRegistration = async (eventId) => {
+  try {
+      const response = await fetch(`${API_BASE_URL}/api/events/check-registration/${eventId}/`);
+      if (!response.ok) {
+          const errorData = await response.text(); // Change this to text to see the raw response
+          console.error('Registration API error:', errorData);
+          throw new Error('Failed to check registration status');
+      }
+      const data = await response.json();
+      return data.is_registered; // Assuming the API returns { is_registered: true/false }
+  } catch (error) {
+      console.error('Error checking registration:', error.message || error);
+      return false; // Default to not registered on error
+  }
+};
+
 export default async function EventPage({ params: { slug } }) {
   if (!slug) return notFound();
 
   const event = await getEventBySlug(slug);
+  const isRegistered = await checkRegistration(event.id);
+
   
   if (!event) return notFound();
 

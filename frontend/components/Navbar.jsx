@@ -237,7 +237,7 @@ const Navbar = () => {
               ) : (
                 <div className="px-3 py-2 space-y-2">
                   <Link href="/signin">
-                    <Button variant="outline" className="w-full">Login</Button>
+                    <Button variant="outline" className="w-full mb-2">Login</Button>
                   </Link>
                   <Link href="/signup">
                     <Button className="w-full">Sign Up</Button>

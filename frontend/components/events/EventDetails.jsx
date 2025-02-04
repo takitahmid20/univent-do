@@ -17,7 +17,7 @@ import {
 import JoinEventModal from '@/components/JoinEventModal';
 import EventParticipants from './EventParticipants';
 
-const EventDetails = ({ event, API_BASE_URL }) => {
+const EventDetails = ({ event,isRegistered, API_BASE_URL }) => {
   const [showCopyAlert, setShowCopyAlert] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOrganizer, setIsOrganizer] = useState(false);
@@ -245,20 +245,22 @@ const EventDetails = ({ event, API_BASE_URL }) => {
             </div>
 
             <button
-              onClick={handleTicketClick}
-              disabled={cannotRegister}
-              className={`w-full py-3 rounded-lg font-medium text-white transition-colors ${
-                cannotRegister
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-[#f6405f] hover:bg-[#d63850]'
-              }`}
-            >
-              {isEventOwner 
-                ? 'Cannot Register for Own Event' 
-                : isOrganizer 
-                  ? 'Organizers Cannot Register' 
-                  : 'Register Now'}
-            </button>
+    onClick={handleTicketClick}
+    disabled={cannotRegister}
+    className={`w-full py-3 rounded-lg font-medium text-white transition-colors ${
+        cannotRegister
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-[#f6405f] hover:bg-[#d63850]'
+    }`}
+>
+    {isEventOwner 
+        ? 'Cannot Register for Own Event' 
+        : isOrganizer 
+            ? 'Organizers Cannot Register' 
+            : isRegistered 
+                ? 'You are already registered' 
+                : 'Register Now'}
+</button>
           </div>
 
           {/* Share Event Section */}

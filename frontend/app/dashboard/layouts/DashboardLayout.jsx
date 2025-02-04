@@ -261,9 +261,11 @@ const notificationRef = useRef(null);
       >
         <div className="h-full flex flex-col bg-white border-r">
           {/* Logo */}
-          <div className="h-16 flex items-center px-6 border-b">
-            <h1 className="text-2xl font-bold text-[#f6405f]">Univent</h1>
-          </div>
+<div className="h-16 flex items-center px-6 border-b">
+    <Link href="/" passHref>
+        <h1 className="text-2xl font-bold text-[#f6405f] cursor-pointer">Univent</h1>
+    </Link>
+</div>
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">

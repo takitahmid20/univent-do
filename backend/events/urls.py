@@ -5,7 +5,7 @@ from .views import (
     OrganizerEventsListView, EventRegistrationsListView, PublicEventsView,
     ImageUploadView, GetEventByIDView, UserRegisteredEventsView, SimpleCheckInView,
     QRCheckInView, EventParticipantsView, OrganizerDashboardView, UserDashboardView,
-    download_ticket, PublicEventDetailView, ToggleCheckInView
+    download_ticket, PublicEventDetailView, ToggleCheckInView, CheckRegistrationView
 )
 
 urlpatterns = [
@@ -30,5 +30,6 @@ urlpatterns = [
     path('user/dashboard/', UserDashboardView.as_view(), name='user_dashboard'),
     path('registrations/<uuid:registration_id>/ticket/', download_ticket, name='download_ticket'),
     path('public/<str:slug>/', PublicEventDetailView.as_view(), name='public-event-detail'),
+    path('check-registration/<uuid:event_id>/', CheckRegistrationView.as_view(), name='check-registration'),
 ]
 #ggg

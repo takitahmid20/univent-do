@@ -1361,3 +1361,13 @@ def get_user_event_statistics(user_id):
     except Exception as e:
         print(f"DB Error: {str(e)}")
         return None
+
+def check_user_registration(event_id, user_id):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT 1 FROM event_registrations 
+                WHERE event_id = %s AND attendee_id = %s
+            );
+        """, [event_id, user_id])
+        return cursor.fetchone()[0]
