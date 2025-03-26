@@ -1,7 +1,7 @@
 // Backend API configuration
 const isDevelopment = process.env.NODE_ENV === 'development';
 export const API_BASE_URL = isDevelopment 
-    ? 'http://localhost:5656'
+    ? 'http://127.0.0.1:5656/'
     : 'https://univent-backend.onrender.com';
 
 // API endpoints
@@ -20,7 +20,7 @@ export const API_ENDPOINTS = {
     
     // Event endpoints
     CREATE_EVENT: `${API_BASE_URL}/api/events/create/`,
-    GET_EVENTS: `${API_BASE_URL}/api/events/`,
+    GET_EVENTS: `${API_BASE_URL}/api/events/public/`,
     GET_EVENT_DETAILS: (eventId) => `${API_BASE_URL}/api/events/get/${eventId}/`,
     GET_PUBLIC_EVENT: (slug) => `${API_BASE_URL}/api/events/public/${slug}/`,
     UPDATE_EVENT: (eventId) => `${API_BASE_URL}/api/events/update/${eventId}/`,
@@ -48,12 +48,12 @@ export const API_ENDPOINTS = {
     ADMIN_DELETE_ORGANIZER: (organizerId) => `${API_BASE_URL}/api/admin/organizers/${organizerId}/`,
 
     // Notification endpoints
-    USER_NOTIFICATIONS: `${API_BASE_URL}/api/notifications/`,
-    NOTIFICATION_UNREAD_COUNT: `${API_BASE_URL}/api/notifications/unread-count/`,
-    MARK_NOTIFICATION_READ: (notificationId) => `${API_BASE_URL}/api/notifications/read/${notificationId}/`,
-    MARK_ALL_NOTIFICATIONS_READ: `${API_BASE_URL}/api/notifications/mark-all-read/`,
-    EVENT_NOTIFICATIONS: (eventId) => `${API_BASE_URL}/api/notifications/event/${eventId}/list/`,
-    SEND_EVENT_NOTIFICATION: (eventId) => `${API_BASE_URL}/api/notifications/event/${eventId}/`,
+    // USER_NOTIFICATIONS: `${API_BASE_URL}/api/notifications/`,
+    // NOTIFICATION_UNREAD_COUNT: `${API_BASE_URL}/api/notifications/unread-count/`,
+    // MARK_NOTIFICATION_READ: (notificationId) => `${API_BASE_URL}/api/notifications/read/${notificationId}/`,
+    // MARK_ALL_NOTIFICATIONS_READ: `${API_BASE_URL}/api/notifications/mark-all-read/`,
+    // EVENT_NOTIFICATIONS: (eventId) => `${API_BASE_URL}/api/notifications/event/${eventId}/list/`,
+    // SEND_EVENT_NOTIFICATION: (eventId) => `${API_BASE_URL}/api/notifications/event/${eventId}/`,
 
     
 };

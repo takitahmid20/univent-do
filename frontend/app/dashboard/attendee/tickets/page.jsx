@@ -15,47 +15,6 @@ import {
 } from 'react-icons/fa';
 import { API_ENDPOINTS } from '@/lib/config';
 
-// QR Code Modal Component
-function QRCodeModal({ isOpen, onClose, qrCode, eventTitle }) {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl max-w-md w-full p-6 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-        >
-          <FaTimes className="w-5 h-5" />
-        </button>
-        
-        <div className="text-center">
-          <h3 className="text-xl font-semibold mb-2">Event Check-in QR Code</h3>
-          <p className="text-gray-500 mb-4">{eventTitle}</p>
-          
-          <div className="bg-white p-4 rounded-lg shadow-inner mb-4">
-            {qrCode ? (
-              <img 
-                src={qrCode} 
-                alt="QR Code"
-                className="mx-auto w-48 h-48"
-              />
-            ) : (
-              <div className="w-48 h-48 mx-auto flex items-center justify-center bg-gray-100 rounded-lg">
-                <p className="text-gray-500">QR Code not available</p>
-              </div>
-            )}
-          </div>
-          
-          <p className="text-sm text-gray-500">
-            Show this QR code at the event entrance
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // Ticket Card Component
 function TicketCard({ registration }) {
   const formatDate = (dateString) => {
@@ -72,8 +31,10 @@ function TicketCard({ registration }) {
     });
   };
 
-  // Check if registration is valid
-  if (!registration) return null;
+  // Check if registration and event are valid
+  if (!registration || !registration.event) return null;
+
+  const event = registration.event;
 
   return (
     <div className="relative bg-white rounded-xl overflow-hidden shadow-md">
@@ -88,14 +49,14 @@ function TicketCard({ registration }) {
               <FaTicketAlt className="text-[#f6405f]" />
               <span className="text-sm text-gray-500">Event Ticket</span>
             </div>
-            <h3 className="text-2xl font-bold mb-4">{registration.title}</h3>
+            <h3 className="text-2xl font-bold mb-4">{event.title}</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div className="flex items-center gap-2">
                 <FaCalendarAlt className="text-gray-400" />
                 <div>
                   <div className="text-sm text-gray-500">Date</div>
-                  <div className="font-medium">{formatDate(registration.event_date)}</div>
+                  <div className="font-medium">{formatDate(event.event_date)}</div>
                 </div>
               </div>
               
@@ -103,7 +64,7 @@ function TicketCard({ registration }) {
                 <FaClock className="text-gray-400" />
                 <div>
                   <div className="text-sm text-gray-500">Time</div>
-                  <div className="font-medium">{formatTime(registration.event_time)}</div>
+                  <div className="font-medium">{formatTime(event.event_time)}</div>
                 </div>
               </div>
               
@@ -111,23 +72,35 @@ function TicketCard({ registration }) {
                 <FaMapMarkerAlt className="text-gray-400" />
                 <div>
                   <div className="text-sm text-gray-500">Venue</div>
-                  <div className="font-medium">{registration.venue}</div>
+                  <div className="font-medium">{event.venue}</div>
                 </div>
               </div>
             </div>
-            
-            <div className="flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                <FaChair className="text-sm" />
-                {registration.number_of_seats} seats
-              </span>
-              
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
-                ৳{registration.total_amount}
-              </span>
+
+            <div className="text-sm text-gray-500 mb-6">
+              <div className="mb-2">
+                <span className="font-medium">Address:</span> {event.address}
+              </div>
+              <div>
+                <span className="font-medium">Organizer:</span> {event.organizer.organization_name || event.organizer.username}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {registration.checked_in ? (
+                <div className="flex items-center text-green-500">
+                  <FaCheckCircle className="mr-2" />
+                  <span>Checked In</span>
+                </div>
+              ) : (
+                <div className="flex items-center text-gray-500">
+                  <FaRegCircle className="mr-2" />
+                  <span>Not Checked In</span>
+                </div>
+              )}
             </div>
           </div>
-          
+
           {/* QR Code Section */}
           <div className="flex flex-col items-center">
             {registration.qr_code ? (

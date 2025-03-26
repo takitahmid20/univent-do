@@ -127,15 +127,18 @@ export default function QRScanner({ onClose }) {
         return;
       }
 
+      const API_BASE_URL = 'http://192.168.68.103:5656';
       const response = await axios.post(
-        'https://univent-backend.onrender.com/api/events/check-in/qr/',
-        // 'http://172.20.10.3:5656/api/events/check-in/qr/',
-        // 'http://192.168.68.106:5656/api/events/check-in/qr/',
-        { registration_id: result.data },
+        `${API_BASE_URL}/api/events/check-in/`,
+        { 
+          registration_id: result.data,
+          check_in_type: 'qr'
+        },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
+            'Accept': 'application/json'
           }
         }
       );
@@ -156,7 +159,12 @@ export default function QRScanner({ onClose }) {
       }
     } catch (error) {
       console.error('Check-in error:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to process check-in';
+      console.error('Check-in error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to process check-in';
       showAlert('error', 'Check-in Failed', errorMessage);
     }
   }, [isProcessing]);
